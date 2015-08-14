@@ -1,6 +1,6 @@
 import humongolus as orm
 import humongolus.field as field
-from flaskaws.util import password
+from lablog.util import password
 
 class PageCategory(orm.EmbeddedDocument):
     id = field.Char()
@@ -29,7 +29,7 @@ class SocialAccount(orm.EmbeddedDocument):
     permissions = orm.List(type=unicode)
 
 class Client(orm.Document):
-    _db = "flaskaws"
+    _db = "lablog"
     _collection = "clients"
 
     _indexes = [
@@ -39,9 +39,23 @@ class Client(orm.Document):
     name = field.Char()
     description = field.Char()
     facebook_page = FacebookPage()
+    secret = field.Char()
+    redirect_uris = orm.List(type=unicode)
+    default_scopes = orm.List(type=unicode)
+    _type = field.Char()
+
+
+    @property
+    def client_type(self):
+        return self._type;
+
+    @property
+    def default_redirect_uri(self):
+        self.logger.info(self.redirect_uris)
+        return self.redirect_uris[0]
 
 class Admin(orm.Document):
-    _db = "flaskaws"
+    _db = "lablog"
     _collection = "client_admins"
     _indexes = [
         orm.Index('email', key=('email', 1), unique=True),
@@ -90,3 +104,33 @@ class Admin(orm.Document):
     def get_id(self):
         self.logger.info(unicode(self._id))
         return unicode(self._id)
+
+
+class Grant(orm.Document):
+    _db = 'lablog'
+    _collection = 'grants'
+    client = field.DocumentId(type=Client)
+    code = field.Char()
+    user = field.DocumentId(type=Admin)
+    scopes = orm.List(type=unicode)
+    expires = field.Date()
+    redirect_url = field.Char()
+
+    def delete(self): self.remove()
+
+class Token(orm.Document):
+    _db = 'lablog'
+    _collection = 'tokens'
+    access_token = field.Char()
+    refresh_token = field.Char()
+    client = field.DocumentId(type=Client)
+    scopes = orm.List(type=unicode)
+    expires = field.Date()
+    user = field.DocumentId(type=Admin)
+    _type = field.Char()
+
+    @property
+    def token_type(self):
+        return self._type
+
+    def delete(self): self.remove()

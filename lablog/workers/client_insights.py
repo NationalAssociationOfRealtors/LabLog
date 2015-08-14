@@ -1,7 +1,7 @@
-from flaskaws.app import App
-from flaskaws import config
-from flaskaws import db
-from flaskaws.insights import INSIGHTS
+from lablog.app import App
+from lablog import config
+from lablog import db
+from lablog.insights import INSIGHTS
 from flask_oauth import OAuth
 import urlparse
 import logging

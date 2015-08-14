@@ -1,0 +1,16 @@
+mongodb:
+    image: mongo:2.6
+    ports:
+        - "27017:27017"
+
+elasticsearch:
+    image: elasticsearch:1.5
+    ports:
+        - "9200:9200"
+        - "9300:9300"
+
+influxdb:
+    image: tutum/influxdb
+    ports:
+        - "8086:8086"
+        - "8083:8083"

@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, Response
 from flask.views import MethodView
 from flask.ext.login import login_required, current_user
-from flaskaws import config
-from flaskaws.models.client import SocialAccount, FacebookPage, PageCategory
+from lablog import config
+from lablog.models.client import SocialAccount, FacebookPage, PageCategory
 from flask_oauth import OAuth
 import logging
 from urlparse import parse_qs, urlparse

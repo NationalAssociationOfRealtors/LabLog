@@ -32,7 +32,7 @@ Edit config/nginx.conf, change this line
 
 to point to the static directory in the `flask-aws-scaffolding` git checkout (you may need to adjust the permissions of the static files, as well as their parent directories, so that nginx has access to open/read the files)
 
-    alias /home/entropealabs/dev/flask-aws-scaffolding/flaskaws/views/static;
+    alias /home/entropealabs/dev/flask-aws-scaffolding/lablog/views/static;
 
 copy the nginx.conf file to the nginx conf directory
 

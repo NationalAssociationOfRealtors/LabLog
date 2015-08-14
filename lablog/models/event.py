@@ -1,4 +1,4 @@
-from flaskaws import db
+from lablog import db
 import logging
 
 class Event(object):

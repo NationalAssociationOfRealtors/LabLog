@@ -1,7 +1,11 @@
-from flask import Blueprint, Response, render_template
+from flask import Blueprint, Response, render_template, jsonify
 from flask.views import MethodView
-from flaskaws import config
+from lablog.app import App
+from lablog import config
+from flask_oauthlib.provider import OAuth2Provider
 import logging
+
+oauth = OAuth2Provider(App())
 
 dashboard = Blueprint(
     'dashboard',
