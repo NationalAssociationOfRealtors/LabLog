@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, request, redirect, url_for, session, get_flashed_messages, current_app
+from flask import Blueprint, render_template, flash, request, redirect, url_for, session, get_flashed_messages, current_app, jsonify
 from flask.ext.login import login_user, current_user, logout_user, login_required
 from flask.views import MethodView
 from pymongo.errors import DuplicateKeyError
@@ -113,10 +113,10 @@ def save_grant(client_id, code, request, *args, **kwargs):
 @oauth.tokengetter
 def load_token(access_token=None, refresh_token=None):
     if access_token:
-        print "Access Token: {}".format(access_token)
+        print access_token
+        print len(access_token)
         print "Refresh Token: {}".format(refresh_token)
         t = Token.find_one({'access_token':access_token})
-        print t.json()
         return t
     elif refresh_token:
         return Token.find_one({'refresh_token':refresh_token})
@@ -132,14 +132,16 @@ def save_token(token, request, *args, **kwargs):
     expires = datetime.utcnow() + timedelta(days=10)
 
     tok = Token()
-    tok.access_token = token['access_token']
+    print token
+    tok.access_token = token['access_token'][7:]#TODO I have no idea what is chopping the the first 7 chars from the access token, it must be gunicorn or something deep in oauthlib
     tok.refresh_token = token.get('refresh_token', token['access_token'])
     tok._type = token['token_type']
-    tok.scopes = token['scope'].split(" ")
+    [tok.scopes.append(scope) for scope in token['scope'].split(" ")]
     tok.expires = expires
     tok.client = request.client
     tok.user = current_user
     tok.save()
+    print tok.json()
     return tok
 
 @auth.route("/authorize", methods=['GET', 'POST'])
@@ -156,10 +158,11 @@ def authorize(*args, **kwargs):
     print "YAY"
     return True
 
-@auth.route("/hello", methods=["GET"])
-@oauth.require_oauth()
-def hello():
-    return jsonify({'hello':request.oauth.user.name})
+@oauth.invalid_response
+def invalid_require_oauth(req):
+    return jsonify({'message':req.error_message}), 401
+
+
 
 auth.add_url_rule("/login", view_func=AuthLogin.as_view('login'))
 auth.add_url_rule("/logout", view_func=AuthLogout.as_view('logout'))

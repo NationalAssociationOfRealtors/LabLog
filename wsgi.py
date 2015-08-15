@@ -5,6 +5,7 @@ from lablog.controllers.dashboard import dashboard
 from lablog.controllers.auth import auth
 from lablog.controllers.auth.facebook import facebook
 from lablog.controllers.healthcheck import hc
+from lablog.controllers.lab import lab
 import logging
 
 def create_app():
@@ -18,6 +19,7 @@ def create_app():
     _app.register_blueprint(auth)
     _app.register_blueprint(facebook)
     _app.register_blueprint(hc)
+    _app.register_blueprint(lab)
     def app(env, start_response):
         #if peek_path_info(env) == "healthcheck":
         #    _app.config['SERVER_NAME'] = None
