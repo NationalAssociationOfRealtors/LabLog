@@ -14,3 +14,4 @@ influxdb==0.2.0
 slugify==0.0.1
 requests==2.5.1
 flask-oauthlib==0.9.1
+gevent-websocket==0.9.4

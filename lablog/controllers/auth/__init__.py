@@ -92,7 +92,9 @@ class AuthLogout(MethodView):
 
 @oauth.clientgetter
 def load_client(client_id):
-    return Client(id=client_id)
+    try:
+        return Client(id=client_id)
+    except: return None
 
 @oauth.grantgetter
 def grant_getter(client_id, code):
@@ -145,8 +147,8 @@ def save_token(token, request, *args, **kwargs):
     return tok
 
 @auth.route("/authorize", methods=['GET', 'POST'])
-@oauth.authorize_handler
 @login_required
+@oauth.authorize_handler
 def authorize(*args, **kwargs):
     if request.method == 'GET':
         user = current_user

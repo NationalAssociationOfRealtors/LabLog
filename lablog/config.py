@@ -2,7 +2,7 @@ import os
 import logging
 import datetime
 
-LOG_LEVEL = logging.INFO
+LOG_LEVEL = logging.DEBUG
 DEBUG = True
 
 HASH_ROUNDS = 3998

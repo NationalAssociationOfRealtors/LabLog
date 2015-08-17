@@ -1,16 +1,19 @@
 mongodb:
     image: mongo:2.6
+    hostname: mongo
     ports:
         - "27017:27017"
 
 elasticsearch:
     image: elasticsearch:1.5
+    hostname: elasticsearch
     ports:
         - "9200:9200"
         - "9300:9300"
 
 influxdb:
     image: tutum/influxdb
+    hostname: influxdb
     ports:
         - "8086:8086"
         - "8083:8083"

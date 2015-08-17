@@ -10,6 +10,8 @@ import humongolus
 import logging
 import time
 
+logging.basicConfig(level=config.LOG_LEVEL)
+
 class App(Flask):
 
     def __init__(self):
