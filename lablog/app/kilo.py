@@ -48,6 +48,7 @@ class Kilo(WebSocketApplication):
         token = verify_message(self.ws.handler.active_client.ws, ['inoffice'])
         self.name = 'foo'
         current = self.ws.handler.active_client
+        current.token = token
         ev = {'event':'me', '_to':current.address, 'data':{'room':self.name}}
         self.sendto(ev)
         ev['event'] = 'joined'
@@ -55,7 +56,7 @@ class Kilo(WebSocketApplication):
 
     def on_message(self, ms):
         try:
-            token = verify_message(self.ws.handler.active_client.ws, ['inoffice'])
+            token = self.ws.handler.active_client.token
             ms = json.loads(ms)
             ms['token'] = token
             ev = ms['event']
