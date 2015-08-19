@@ -5,8 +5,6 @@ from lablog import config
 from flask_oauthlib.provider import OAuth2Provider
 import logging
 
-oauth = OAuth2Provider(App())
-
 dashboard = Blueprint(
     'dashboard',
     __name__,
@@ -14,7 +12,6 @@ dashboard = Blueprint(
 )
 
 class Index(MethodView):
-
     def get(self):
         return render_template("index.html")
 

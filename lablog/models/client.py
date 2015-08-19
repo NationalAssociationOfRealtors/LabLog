@@ -1,5 +1,7 @@
+from flask import url_for
 import humongolus as orm
 import humongolus.field as field
+import urllib, hashlib
 from lablog.util import password
 
 class PageCategory(orm.EmbeddedDocument):
@@ -54,6 +56,9 @@ class Client(orm.Document):
         self.logger.info(self.redirect_uris)
         return self.redirect_uris[0]
 
+class ClientRef(orm.EmbeddedDocument):
+    ref = field.DocumentId(type=Client)
+
 class Admin(orm.Document):
     _db = "lablog"
     _collection = "client_admins"
@@ -63,11 +68,11 @@ class Admin(orm.Document):
 
     name = field.Char()
     email = field.Char()
-    password = field.Char()
     last_login = field.Date()
-    client = field.DocumentId(type=Client)
+    clients = orm.List(type=ClientRef)
     social_accounts = orm.List(type=SocialAccount)
     facebook_pages = orm.List(type=FacebookPage)
+    in_office = field.Boolean(default=False)
 
     def social_account(self, account_type=None):
         for sa in self.social_accounts:
@@ -75,21 +80,6 @@ class Admin(orm.Document):
         sa = SocialAccount()
         sa.type = account_type
         return sa
-
-    @staticmethod
-    def passwords_match(pwd, cpwd):
-        if pwd == cpwd: return True
-        return False
-
-    def save(self):
-        if not password.identify(self.password):
-            self.password = password.encrypt_password(self.password)
-        return super(Admin, self).save()
-
-    def verify_pwd(self, pwd):
-        self.logger.info(password.encrypt_password(pwd))
-        self.logger.info(self.password)
-        return password.check_password(pwd, self.password)
 
     def is_authenticated(self):
         if self._id: return True
@@ -134,3 +124,5 @@ class Token(orm.Document):
         return self._type
 
     def delete(self): self.remove()
+
+Client.users = orm.Lazy(type=Admin, key='clients.ref')

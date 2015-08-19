@@ -6,11 +6,12 @@ from bson.objectid import ObjectId
 from passlib.hash import hex_sha1 as hex_sha1
 from lablog import config
 from lablog.app import App
-from lablog.models.client import Client, Admin, Token, Grant
+from lablog.models.client import Client, Admin, Token, Grant, ClientRef
 from lablog.util import password
 from datetime import datetime, timedelta
 from flask_oauthlib.provider import OAuth2Provider
 import logging
+import ldap
 
 auth = Blueprint(
     'auth',
@@ -19,25 +20,50 @@ auth = Blueprint(
     url_prefix="/auth",
 )
 
-oauth = OAuth2Provider(App())
+app = App()
+oauth = OAuth2Provider(app)
+
+def ldap_login(un, pw):
+    ld = ldap.initialize('ldap://{}:{}'.format(config.LDAP_HOST, config.LDAP_PORT))
+    ld.protocol_version = ldap.VERSION3
+    ld.set_option(ldap.OPT_REFERRALS, 0)
+    ld.simple_bind_s(config.LDAP_USERNAME, config.LDAP_PASSWORD)
+    r = ld.search(config.LDAP_BASE_DN, ldap.SCOPE_SUBTREE, config.LDAP_USER_OBJECT_FILTER.format(un), ['displayName'])
+    type,user = ld.result(r,60)
+    logging.info(user)
+    dn,attrs = user[0]
+    logging.info(dn)
+    ld.simple_bind_s(dn, pw)
+    results = ld.search_s(config.LDAP_BASE_DN, ldap.SCOPE_SUBTREE, config.LDAP_USER_OBJECT_FILTER.format(un), None)
+    if len(results) > 1: raise Exception("Invalid Auth")
+    return results[0][1]
 
 class AuthLogin(MethodView):
 
     def get(self):
-        return render_template("auth/login.html")
+        logging.info("Next: {}".format(request.args.get("next")))
+        return render_template("auth/login.html", next=request.args.get("next", url_for("dashboard.index")))
 
     def post(self):
         form = request.form
-        em = form['email']
+        un = form['username']
         pw = form['password']
-        a = Admin.find_one({'email':em})
-        v = a.verify_pwd(pw)
-        if a and v:
+        nex = form.get('next', url_for("dashboard.index"))
+        logging.info("Next: {}".format(nex))
+        try:
+            user = ldap_login(un, pw)
+            a = Admin.find_one({'email':user.get('mail')[0]})
+            if not a: a = Admin()
+            a.name = user.get('displayName')[0]
+            a.email = user.get('mail')[0]
+            a.last_login = datetime.utcnow()
+            a.save()
             rem = False
             if form.get("remember-me"): rem = True
             success = login_user(a, remember=rem)
-            return redirect(url_for(".authorize", client_id=str(a.client._id), response_type='token'))
-        else:
+            return redirect(nex)
+        except Exception as e:
+            logging.exception(e)
             flash("Please try again", "danger")
 
         return render_template("auth/login.html", form=form)
@@ -45,7 +71,7 @@ class AuthLogin(MethodView):
 class AuthRegister(MethodView):
 
     def get(self):
-        return render_template("auth/register.html")
+        return render_template("auth/register.html", clients=Client)
 
     def post(self):
         form = request.form
@@ -55,19 +81,22 @@ class AuthRegister(MethodView):
             flash("Passwords do not match", "danger")
             return render_template("auth/register.html", form=form)
         try:
-            cl = Client()
-            cl.name = form['org']
-            cl.secret = hex_sha1.encrypt(cl.name)
-            cl._type = "public"
-            cl.redirect_uris.append(unicode(url_for('dashboard.index', _external=True)))
-            [cl.default_scopes.append(unicode(scope)) for scope in config.OAUTH_SCOPES]
-            logging.info(cl.json())
-            logging.info(cl.json())
-            cl.save()
-        except DuplicateKeyError as e:
-            logging.exception(e)
-            flash("Organization name already taken", "danger");
-            return render_template("auth/register.html", form=form)
+            cl = Client(id=form['org'])
+        except:
+            try:
+                cl = Client()
+                cl.name = form['org']
+                cl.secret = hex_sha1.encrypt(cl.name)
+                cl._type = "public"
+                cl.redirect_uris.append(unicode(url_for('dashboard.index', _external=True)))
+                [cl.default_scopes.append(unicode(scope)) for scope in config.OAUTH_SCOPES]
+                logging.info(cl.json())
+                logging.info(cl.json())
+                cl.save()
+            except DuplicateKeyError as e:
+                logging.exception(e)
+                flash("Organization name already taken", "danger");
+                return render_template("auth/register.html", form=form)
         try:
             a = Admin()
             a.name = form['name']
@@ -130,11 +159,9 @@ def save_token(token, request, *args, **kwargs):
         'user':current_user._id,
     })
     for t in toks: t.remove();
-
     expires = datetime.utcnow() + timedelta(days=10)
 
     tok = Token()
-    print token
     tok.access_token = token['access_token'][7:]#TODO I have no idea what is chopping the the first 7 chars from the access token, it must be gunicorn or something deep in oauthlib
     tok.refresh_token = token.get('refresh_token', token['access_token'])
     tok._type = token['token_type']
@@ -143,7 +170,15 @@ def save_token(token, request, *args, **kwargs):
     tok.client = request.client
     tok.user = current_user
     tok.save()
-    print tok.json()
+    user = current_user
+    add = True
+    for c in user.clients:
+        if c.ref._id == request.client._id: add = False
+    if add:
+        c = ClientRef()
+        c.ref = request.client
+        user.clients.append(c)
+        user.save()
     return tok
 
 @auth.route("/authorize", methods=['GET', 'POST'])
@@ -151,20 +186,19 @@ def save_token(token, request, *args, **kwargs):
 @oauth.authorize_handler
 def authorize(*args, **kwargs):
     if request.method == 'GET':
+        logging.info(args)
+        logging.info(kwargs)
         user = current_user
-        client = user.client
+        client = Client(id=request.args.get('client_id', None))
         kwargs['client'] = client
         kwargs['user'] = user
         return render_template('auth/authorize.html', **kwargs)
 
-    print "YAY"
     return True
 
 @oauth.invalid_response
 def invalid_require_oauth(req):
     return jsonify({'message':req.error_message}), 401
-
-
 
 auth.add_url_rule("/login", view_func=AuthLogin.as_view('login'))
 auth.add_url_rule("/logout", view_func=AuthLogout.as_view('logout'))

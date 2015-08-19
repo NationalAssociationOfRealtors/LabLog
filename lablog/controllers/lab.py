@@ -22,5 +22,9 @@ def me():
 @lab.route("/beacon", methods=["POST"])
 @oauth.require_oauth('inoffice')
 def beacon():
-    print request.json
     return jsonify(request.oauth.user.json())
+
+@lab.route("/team", methods=["GET"])
+@oauth.require_oauth('inoffice')
+def team():
+    return jsonify([user.json() for user in request.oauth.client.users()])

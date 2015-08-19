@@ -2,7 +2,7 @@ import os
 import logging
 import datetime
 
-LOG_LEVEL = logging.DEBUG
+LOG_LEVEL = logging.INFO
 DEBUG = True
 
 HASH_ROUNDS = 3998
@@ -49,5 +49,12 @@ TEMPLATES = "{}/lablog/views/templates".format(os.getcwd())
 MONGO_HOST = "mongo"
 MONGO_PORT = 27017
 
-FACEBOOK_APP_ID = "805050686208884"#os.getenv("FACEBOOK_APP_ID")
-FACEBOOK_APP_SECRET = "37c0f7647d6b85b589db7efb0a300a86"#os.getenv("FACEBOOK_APP_SECRET")
+FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID")
+FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET")
+
+LDAP_HOST = os.environ.get('LDAP_HOST')
+LDAP_PORT = os.environ.get('LDAP_PORT')
+LDAP_BASE_DN = os.environ.get('LDAP_BASE_DN')
+LDAP_USERNAME = os.environ.get('LDAP_USERNAME')
+LDAP_PASSWORD = os.environ.get('LDAP_PASSWORD')
+LDAP_USER_OBJECT_FILTER = os.environ.get('LDAP_USER_OBJECT_FILTER')
