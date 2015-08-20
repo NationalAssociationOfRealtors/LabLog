@@ -10,8 +10,9 @@ Humongolus==1.0.6
 fig==1.0.1
 passlib==1.6.2
 gevent==1.0.1
-influxdb==0.2.0
+influxdb==2.8.0
 slugify==0.0.1
 requests==2.5.1
 flask-oauthlib==0.9.1
 gevent-websocket==0.9.4
+python-ldap==2.4.20

@@ -111,6 +111,14 @@ class Grant(orm.Document):
 class Token(orm.Document):
     _db = 'lablog'
     _collection = 'tokens'
+
+    _indexes = [
+        orm.Index('access_token', key=('access_token', 1), unique=True),
+        orm.Index('refresh_token', key=('refresh_token', 1), unique=True),
+        orm.Index('client', key=('client', 1)),
+        orm.Index('user', key=('user', 1)),
+    ]
+
     access_token = field.Char()
     refresh_token = field.Char()
     client = field.DocumentId(type=Client)

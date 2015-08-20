@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, render_template, request
+from flask import Blueprint, Response, render_template, request, g
 from flask.views import MethodView
 from lablog.app import App
 from lablog import config
@@ -28,3 +28,12 @@ def beacon():
 @oauth.require_oauth('inoffice')
 def team():
     return jsonify([user.json() for user in request.oauth.client.users()])
+
+@lab.route("/user/<id>", methods=["GET"])
+@oauth.require_oauth('inoffice')
+def user_detail(id):
+    res = g.INFLUX.query("select * from inoffice where user_id='{}'".format(id))
+    r = [p for p in res.get_points()]
+    r.reverse()
+    logging.info(r)
+    return jsonify(r)

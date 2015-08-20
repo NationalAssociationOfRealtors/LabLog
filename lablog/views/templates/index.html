@@ -5,6 +5,11 @@
 {% block content %}
 <div class="jumbotron">
     <h1>Welcome {{current_user.name}}</h1>
-    <p>This is a basic flask app</p>
+    <h3>Clients</h3>
+    <ul>
+        {% for c in client.find() %}
+            <li>{{c.name}}: {{c._id}}</li>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}

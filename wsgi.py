@@ -7,13 +7,12 @@ from lablog.controllers.auth import auth
 from lablog.controllers.auth.facebook import facebook
 from lablog.controllers.healthcheck import hc
 from lablog.controllers.lab import lab
-from lablog.app.kilo import Kilo #WebRTC Signalling server
+from lablog.app.kilo import Kilo
 import logging
 from gevent import monkey
 
 logging.basicConfig(level=config.LOG_LEVEL)
 monkey.patch_all()
-
 
 def healthcheck(app, env):
     if peek_path_info(env) == "healthcheck":
@@ -22,9 +21,9 @@ def healthcheck(app, env):
         app.config['SERVER_NAME'] = config.SERVER_NAME
 
 def create_app():
+    logging.info("Initializing")
     def app(env, start_response):
         _app = App()
-        _app.configure_dbs()
         dashboard.before_request(_app.user_logged_in)
         facebook.before_request(_app.user_logged_in)
         _app.register_blueprint(dashboard)

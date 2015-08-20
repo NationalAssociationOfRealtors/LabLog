@@ -43,15 +43,14 @@ def init_influxdb():
     logging.info("INFLUX")
     influx_connected = False
     while not influx_connected:
-        INFLUX = influxdb.InfluxDBClient(
-            config.INFLUX_HOST,
-            config.INFLUX_PORT,
-            config.INFLUX_USER,
-            config.INFLUX_PASSWORD,
-            config.INFLUX_DATABASE,
-        )
         try:
-            res = INFLUX.request("cluster_admins")
+            INFLUX = influxdb.InfluxDBClient(
+                config.INFLUX_HOST,
+                config.INFLUX_PORT,
+                config.INFLUX_USER,
+                config.INFLUX_PASSWORD,
+                config.INFLUX_DATABASE,
+            )
             influx_connected = True
         except Exception as e:
             logging.info("Influxdb not connected")
@@ -79,17 +78,8 @@ def create_index(ES):
     return
 
 def create_shards(INFLUX):
-    logging.info("Creating Influxdb shards and continuous queries")
-    data = {
-        "name":config.INFLUX_DATABASE,
-        "spaces":influx.SPACES,
-        "continuousQueries":influx.QUERIES,
-    }
+    logging.info("Creating Influxdb database")
     try:
-        res = INFLUX.request(
-            url="cluster/database_configs/{}".format(config.INFLUX_DATABASE),
-            data=data,
-            method="POST"
-        )
+        res = INFLUX.create_database(config.INFLUX_DATABASE)
     except Exception as e:
         logging.error(e)

@@ -90,8 +90,6 @@ class AuthRegister(MethodView):
                 cl._type = "public"
                 cl.redirect_uris.append(unicode(url_for('dashboard.index', _external=True)))
                 [cl.default_scopes.append(unicode(scope)) for scope in config.OAUTH_SCOPES]
-                logging.info(cl.json())
-                logging.info(cl.json())
                 cl.save()
             except DuplicateKeyError as e:
                 logging.exception(e)

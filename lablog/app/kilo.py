@@ -82,9 +82,22 @@ class Kilo(WebSocketApplication):
         pass
 
     def inoffice(self, data):
-        logging.info(data['data']['result'])
+        logging.info("In-Office: {}".format(data['data']['result']))
         user = data['token'].user
         user.in_office = data['data']['result']
+        point = [dict(
+            measurement="inoffice",
+            tags=dict(
+                user_id=str(user._id),
+                client_id=str(data['token'].client._id)
+            ),
+            time=datetime.utcnow(),
+            fields=dict(
+                value=data['data']['result']
+            )
+        )]
+        INFLUX = db.init_influxdb()
+        INFLUX.write_points(point)
         user.save();
         data['data']['user'] = user.json()
         self.broadcast(data)
