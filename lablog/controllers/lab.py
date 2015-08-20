@@ -29,11 +29,16 @@ def beacon():
 def team():
     return jsonify([user.json() for user in request.oauth.client.users()])
 
-@lab.route("/user/<id>", methods=["GET"])
+@lab.route("/user/<id>/time", methods=["GET"])
 @oauth.require_oauth('inoffice')
-def user_detail(id):
+def user_time(id):
     res = g.INFLUX.query("select * from inoffice where user_id='{}'".format(id))
     r = [p for p in res.get_points()]
     r.reverse()
     logging.info(r)
     return jsonify(r)
+
+@lab.route("/user/<id>", methods=["GET"])
+@oauth.require_oauth('inoffice')
+def user_detail(id):
+    return jsonify(request.oauth.user.json())
