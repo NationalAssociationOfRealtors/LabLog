@@ -52,6 +52,8 @@ MONGO_PORT = 27017
 FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID")
 FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET")
 
+LDAP_LOGIN = False
+
 LDAP_HOST = os.environ.get('LDAP_HOST')
 LDAP_PORT = os.environ.get('LDAP_PORT')
 LDAP_BASE_DN = os.environ.get('LDAP_BASE_DN')

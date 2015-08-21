@@ -49,6 +49,7 @@ class Kilo(WebSocketApplication):
         self.name = 'foo'
         current = self.ws.handler.active_client
         current.token = token
+        current.INFLUX = db.init_influxdb()
         ev = {'event':'me', '_to':current.address, 'data':{'room':self.name}}
         self.sendto(ev)
         ev['event'] = 'joined'
@@ -99,7 +100,9 @@ class Kilo(WebSocketApplication):
         INFLUX = db.init_influxdb()
         INFLUX.write_points(point)
         user.save();
-        data['data']['user'] = user.json()
+        u = user.json()
+        u['times'] = user.get_punchcard(self.ws.handler.active_client.INFLUX)
+        data['data']['user'] = u
         self.broadcast(data)
 
     def on_close(self, reason):

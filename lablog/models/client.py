@@ -68,11 +68,24 @@ class Admin(orm.Document):
 
     name = field.Char()
     email = field.Char()
+    password = field.Char()
     last_login = field.Date()
     clients = orm.List(type=ClientRef)
     social_accounts = orm.List(type=SocialAccount)
     facebook_pages = orm.List(type=FacebookPage)
     in_office = field.Boolean(default=False)
+
+    @staticmethod
+    def passwords_match(pwd, cpwd):
+        return pwd == cpwd
+
+    def save(self):
+        if not password.identify(self.password):
+            self.password = password.encrypt_password(self.password)
+        return super(Admin, self).save()
+
+    def verify_pwd(self, pwd):
+        return password.check_password(pwd, self.password)
 
     def social_account(self, account_type=None):
         for sa in self.social_accounts:
@@ -80,6 +93,12 @@ class Admin(orm.Document):
         sa = SocialAccount()
         sa.type = account_type
         return sa
+
+    def get_punchcard(self, influx):
+        res = influx.query("select * from inoffice where user_id='{}'".format(self._id))
+        r = [p for p in res.get_points()]
+        r.reverse()
+        return r
 
     def is_authenticated(self):
         if self._id: return True

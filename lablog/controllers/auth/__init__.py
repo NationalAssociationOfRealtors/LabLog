@@ -50,21 +50,31 @@ class AuthLogin(MethodView):
         pw = form['password']
         nex = form.get('next', url_for("dashboard.index"))
         logging.info("Next: {}".format(nex))
-        try:
-            user = ldap_login(un, pw)
-            a = Admin.find_one({'email':user.get('mail')[0]})
-            if not a: a = Admin()
-            a.name = user.get('displayName')[0]
-            a.email = user.get('mail')[0]
-            a.last_login = datetime.utcnow()
-            a.save()
-            rem = False
-            if form.get("remember-me"): rem = True
-            success = login_user(a, remember=rem)
-            return redirect(nex)
-        except Exception as e:
-            logging.exception(e)
-            flash("Please try again", "danger")
+        if not config.LDAP_LOGIN:
+            a = Admin.find_one({'email':un})
+            if a and a.verify_pwd(pw):
+                login_user(a)
+                logging.info("logged in")
+                return redirect(nex)
+            else:
+                flash("Please try again", "danger")
+
+        else:
+            try:
+                user = ldap_login(un, pw)
+                a = Admin.find_one({'email':user.get('mail')[0]})
+                if not a: a = Admin()
+                a.name = user.get('displayName')[0]
+                a.email = user.get('mail')[0]
+                a.last_login = datetime.utcnow()
+                a.save()
+                rem = False
+                if form.get("remember-me"): rem = True
+                success = login_user(a, remember=rem)
+                return redirect(nex)
+            except Exception as e:
+                logging.exception(e)
+                flash("Please try again", "danger")
 
         return render_template("auth/login.html", form=form)
 
@@ -81,26 +91,10 @@ class AuthRegister(MethodView):
             flash("Passwords do not match", "danger")
             return render_template("auth/register.html", form=form)
         try:
-            cl = Client(id=form['org'])
-        except:
-            try:
-                cl = Client()
-                cl.name = form['org']
-                cl.secret = hex_sha1.encrypt(cl.name)
-                cl._type = "public"
-                cl.redirect_uris.append(unicode(url_for('dashboard.index', _external=True)))
-                [cl.default_scopes.append(unicode(scope)) for scope in config.OAUTH_SCOPES]
-                cl.save()
-            except DuplicateKeyError as e:
-                logging.exception(e)
-                flash("Organization name already taken", "danger");
-                return render_template("auth/register.html", form=form)
-        try:
             a = Admin()
             a.name = form['name']
             a.email = form['email']
             a.password = form['password']
-            a.client = cl
             a.save()
         except DuplicateKeyError as e:
             logging.exception(e)
@@ -108,7 +102,7 @@ class AuthRegister(MethodView):
             return render_template("auth/register.html", form=form)
 
         login_user(a)
-        return redirect(url_for(".authorize", client_id=str(cl._id), response_type='token'))
+        return redirect(url_for("dashboard.index"))
 
 
 class AuthLogout(MethodView):

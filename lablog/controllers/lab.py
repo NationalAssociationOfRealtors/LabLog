@@ -17,28 +17,17 @@ lab = Blueprint(
 @lab.route("/me", methods=["GET"])
 @oauth.require_oauth('inoffice')
 def me():
-    return jsonify(request.oauth.user.json())
-
-@lab.route("/beacon", methods=["POST"])
-@oauth.require_oauth('inoffice')
-def beacon():
-    return jsonify(request.oauth.user.json())
+    me = request.oauth.user.json()
+    me['times'] = request.oauth.user.get_punchcard(g.INFLUX)
+    return jsonify(me)
 
 @lab.route("/team", methods=["GET"])
 @oauth.require_oauth('inoffice')
 def team():
-    return jsonify([user.json() for user in request.oauth.client.users()])
+    ret = []
+    for user in request.oauth.client.users():
+        u = user.json()
+        u['times'] = user.get_punchcard(g.INFLUX)
+        ret.append(u)
 
-@lab.route("/user/<id>/time", methods=["GET"])
-@oauth.require_oauth('inoffice')
-def user_time(id):
-    res = g.INFLUX.query("select * from inoffice where user_id='{}'".format(id))
-    r = [p for p in res.get_points()]
-    r.reverse()
-    logging.info(r)
-    return jsonify(r)
-
-@lab.route("/user/<id>", methods=["GET"])
-@oauth.require_oauth('inoffice')
-def user_detail(id):
-    return jsonify(request.oauth.user.json())
+    return jsonify(ret)
