@@ -136,9 +136,9 @@ def save_grant(client_id, code, request, *args, **kwargs):
 @oauth.tokengetter
 def load_token(access_token=None, refresh_token=None):
     if access_token:
-        print access_token
-        print len(access_token)
-        print "Refresh Token: {}".format(refresh_token)
+        logging.info("Token {}".format(access_token))
+        logging.info("Length {}".format(len(access_token)))
+        logging.info("Token {}".format(refresh_token))
         t = Token.find_one({'access_token':access_token})
         return t
     elif refresh_token:
@@ -154,7 +154,7 @@ def save_token(token, request, *args, **kwargs):
     expires = datetime.utcnow() + timedelta(days=10)
 
     tok = Token()
-    tok.access_token = token['access_token'][7:]#TODO I have no idea what is chopping the the first 7 chars from the access token, it must be gunicorn or something deep in oauthlib
+    tok.access_token = token['access_token']
     tok.refresh_token = token.get('refresh_token', token['access_token'])
     tok._type = token['token_type']
     [tok.scopes.append(scope) for scope in token['scope'].split(" ")]

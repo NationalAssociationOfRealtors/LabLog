@@ -35,3 +35,7 @@ img.brand{
 .form-signin .form-control:focus {
     z-index: 2;
 }
+
+span.permissions{
+    color: blue;
+}

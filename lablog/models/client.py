@@ -80,8 +80,9 @@ class Admin(orm.Document):
         return pwd == cpwd
 
     def save(self):
-        if not password.identify(self.password):
-            self.password = password.encrypt_password(self.password)
+        if self.password:
+            if not password.identify(self.password):
+                self.password = password.encrypt_password(self.password)
         return super(Admin, self).save()
 
     def verify_pwd(self, pwd):

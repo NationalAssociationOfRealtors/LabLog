@@ -3,11 +3,15 @@
 {% block title %}Authorize{% endblock %}
 {% block menu %}{% endblock %}
 {% block content %}
-<form action="{{url_for('.authorize')}}" class="form-signin" method="POST">
-    <input type="hidden" name="client_id" value="{{ client._id }}">
-    <input type="hidden" name="scope" value="{{ scopes|join(' ') }}">
-    <input type="hidden" name="response_type" value="{{ response_type }}">
-    <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Authorize</button>
-</form>
+<div class="jumbotron">
+    <h1>{{client.name}}</h1>
+    <p>is requesting authorization for permissions <span class='permissions'>{{ scopes|join(', ') }}</span></p>
+    <form action="{{url_for('.authorize')}}" class="form-signin" method="POST">
+        <input type="hidden" name="client_id" value="{{ client._id }}">
+        <input type="hidden" name="scope" value="{{ scopes|join(' ') }}">
+        <input type="hidden" name="response_type" value="{{ response_type }}">
+        <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Authorize</button>
+    </form>
+</div>
 {% endblock %}

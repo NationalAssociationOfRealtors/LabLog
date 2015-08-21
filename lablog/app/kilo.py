@@ -25,7 +25,7 @@ def verify_message(client, scopes):
     args = urlparse.parse_qs(client.environ.get('QUERY_STRING'))
     token = args.get('token')[0]
     client_id = args.get('client_id')[0]
-    t = Token.find_one({'refresh_token':token})
+    t = Token.find_one({'access_token':token})
     if str(t._get('client')._value) == client_id and t.expires > datetime.utcnow():
         for i in scopes:
             if not i in t.scopes: raise SocketException('Invalid scope')
