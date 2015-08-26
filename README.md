@@ -1,4 +1,4 @@
-# LabLab
+# LabLog
 
 This is the application that provides the backend services for CRTLabs infrastructure.
 
