@@ -1,12 +1,13 @@
 mongodb:
     image: mongo:2.6
     hostname: mongo
+    command: "--dbpath=/mongo/data"
     #log_driver: "syslog"
     ports:
         - "27017:27017"
 
     volumes:
-        - /nar/mongo:/data/db
+        - /nar/mongo:/mongo/data
 
 elasticsearch:
     image: elasticsearch:1.5
