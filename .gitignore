@@ -59,3 +59,5 @@ terraform/devops.pem
 terraform/.ssh
 terraform/.terraform
 .env
+/config/nginx/*.crt
+/config/nginx/*.key

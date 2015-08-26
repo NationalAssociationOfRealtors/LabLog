@@ -2,7 +2,7 @@ mongodb:
     image: mongo:2.6
     hostname: mongo
     command: "--dbpath=/mongo/data"
-    #log_driver: "syslog"
+    log_driver: "syslog"
     ports:
         - "27017:27017"
 
@@ -12,7 +12,7 @@ mongodb:
 elasticsearch:
     image: elasticsearch:1.5
     hostname: elasticsearch
-    #log_driver: "syslog"
+    log_driver: "syslog"
     ports:
         - "9200:9200"
         - "9300:9300"
@@ -20,7 +20,7 @@ elasticsearch:
 influxdb:
     image: tutum/influxdb
     hostname: influxdb
-    #log_driver: "syslog"
+    log_driver: "syslog"
     ports:
         - "8086:8086"
         - "8083:8083"
@@ -28,7 +28,7 @@ influxdb:
 api:
     build: .
     command: gunicorn -c /config/gunicorn.conf wsgi:app --reload
-    #log_driver: "syslog"
+    log_driver: "syslog"
     volumes:
         - .:/app
         - ./config:/config
@@ -61,7 +61,7 @@ mosquitto:
 
 nginx:
     image: nginx:1.7
-    #log_driver: "syslog"
+    log_driver: "syslog"
     links:
         - api
         - mosquitto:mqtt
