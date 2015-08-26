@@ -1,9 +1,3 @@
-mongodata:
-    image: mongo:2.6
-    command: "true"
-    volumes:
-        - /nar/db:/data/db
-
 mongodb:
     image: mongo:2.6
     hostname: mongo
@@ -11,8 +5,8 @@ mongodb:
     ports:
         - "27017:27017"
 
-    volumes_from:
-        - mongodata
+    volumes:
+        - /nar/mongo:/data/db
 
 elasticsearch:
     image: elasticsearch:1.5
