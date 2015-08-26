@@ -1,9 +1,18 @@
+mongodata:
+    image: mongo:2.6
+    command: "true"
+    volumes:
+        - /nar/db:/data/db
+
 mongodb:
     image: mongo:2.6
     hostname: mongo
     #log_driver: "syslog"
     ports:
         - "27017:27017"
+
+    volumes_from:
+        - mongodata
 
 elasticsearch:
     image: elasticsearch:1.5
