@@ -2,6 +2,8 @@ from flask import Flask, redirect, url_for, request, g
 from flask_pjax import PJAX
 from flask.ext.login import LoginManager, current_user
 from flask.ext.session import Session
+from pymongo.collection import Collection
+import pymongo
 from lablog.models.client import Admin
 from lablog import config
 from lablog import db
@@ -19,6 +21,8 @@ class App(Flask):
         self.config.from_object('lablog.config')
         logging.info("SERVER_NAME: {}".format(self.config['SERVER_NAME']))
         self.before_request(self.init_dbs)
+        self.teardown_request(self.teardown)
+        self.after_request(self.teardown)
         try:
             self.init_session()
             self.init_login()
@@ -39,11 +43,26 @@ class App(Flask):
     def init_templates(self):
         self.jinja_env.filters['slugify'] = slugify
 
+    def teardown(self, exception):
+        db = getattr(g, 'MONGO', None)
+        if db is not None:
+            db.close()
+
+        return exception
+
+    def create_capped_collection(self):
+        m = db.init_mongodb()
+        try:
+            c = Collection(m['lablog'], 'node_stream', capped=True, size=100000)
+        except: pass
+        m['lablog']['node_stream'].create_index([('tags.node', pymongo.DESCENDING)])
+
     def configure_dbs(self):
         es = db.init_elasticsearch()
         db.create_index(es)
         influx = db.init_influxdb()
         db.create_shards(influx)
+        self.create_capped_collection()
 
     def init_dbs(self):
         g.ES = db.init_elasticsearch()

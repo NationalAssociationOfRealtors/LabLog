@@ -1,11 +1,10 @@
 mongodb:
     image: mongo:2.6
-    hostname: mongo
+    hostname: mongodb
     command: "--dbpath=/mongo/data"
     #log_driver: "syslog"
     ports:
         - "27017:27017"
-
     volumes:
         - /nar/mongo:/mongo/data
 

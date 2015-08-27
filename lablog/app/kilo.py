@@ -97,8 +97,7 @@ class Kilo(WebSocketApplication):
                 value=data['data']['result']
             )
         )]
-        INFLUX = db.init_influxdb()
-        INFLUX.write_points(point)
+        self.ws.handler.active_client.INFLUX.write_points(point)
         user.save();
         u = user.json()
         u['times'] = user.get_punchcard(self.ws.handler.active_client.INFLUX)
