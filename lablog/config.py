@@ -23,17 +23,17 @@ ES_HOSTS = [{"host":"es", "port":9200},]
 AUTH_SUBDOMAIN = "auth"
 
 SECRET_KEY = "!!zer0K00L!!"
-#SERVER_NAME = os.getenv("SERVER_NAME", "lablog.dev")
+SERVER_NAME = os.getenv("SERVER_NAME", "lablog.dev")
 
 SESSION_COOKIE_NAME = "lablog"
 SESSION_COOKIE_SECURE = False
-SESSION_COOKIE_DOMAIN = None#".{}".format(SERVER_NAME)
+SESSION_COOKIE_DOMAIN = ".{}".format(SERVER_NAME)
 SESSION_TYPE = 'mongodb'
 PERMANENT_SESSION_LIFETIME = datetime.timedelta(hours=24)
 
 REMEMBER_COOKIE_NAME = "well_hello_there"
 REMEMBER_COOKIE_DURATION = datetime.timedelta(days=5)
-REMEMBER_COOKIE_DOMAIN = None#".{}".format(SERVER_NAME)
+REMEMBER_COOKIE_DOMAIN =".{}".format(SERVER_NAME)
 
 INFLUX_HOST = "influx"
 INFLUX_PORT = 8086
