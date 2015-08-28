@@ -62,7 +62,7 @@ nginx:
     image: nginx:1.7
     #log_driver: "syslog"
     links:
-        - api
+        - api:backend
         - mosquitto:mqtt
     volumes:
         - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
