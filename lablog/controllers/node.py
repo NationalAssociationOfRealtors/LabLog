@@ -3,6 +3,7 @@ from flask.views import MethodView
 from lablog.app import App
 from lablog import config
 from lablog.util.jsontools import jsonify
+from lablog.utils import aes
 from flask_oauthlib.provider import OAuth2Provider
 import logging
 from lablog.controllers.auth import oauth
@@ -15,6 +16,10 @@ node = Blueprint(
     url_prefix="/node",
 )
 
+k = [i for i in config.SKEY]
+k.append(0x00)
+KEY = buffer(bytearray(k))
+
 @node.route("/nodes", methods=["GET"])
 @oauth.require_oauth('inoffice')
 def get_nodes():
@@ -26,8 +31,11 @@ def get_nodes():
 
 @node.route("/<node_id>/sensors", methods=["POST"])
 def node_sensors(node_id):
+    logging.info(request.body)
+    j = aes.decrypt(request.body, KEY)
+    j = json.loads(j)
     points = []
-    for k,v in request.json.iteritems():
+    for k,v in j.iteritems():
         p = dict(
             measurement=k,
             tags=dict(
