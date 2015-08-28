@@ -15,6 +15,15 @@ node = Blueprint(
     url_prefix="/node",
 )
 
+@node.route("/", methods=["GET"])
+@oauth.require_oauth('inoffice')
+def get_nodes():
+    res = g.INFLUX.query(query="SHOW SERIES FROM light")
+    nodes = []
+    for v in res.get_points():
+        nodes.append(v.get('node'))
+    return jsonify({"nodes":nodes})
+
 @node.route("/<node_id>/sensors", methods=["POST"])
 def node_sensors(node_id):
     points = []

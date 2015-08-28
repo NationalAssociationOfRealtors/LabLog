@@ -23,16 +23,16 @@ def healthcheck(app, env):
 
 def create_app():
     logging.info("Initializing")
+    _app = App()
+    dashboard.before_request(_app.user_logged_in)
+    facebook.before_request(_app.user_logged_in)
+    _app.register_blueprint(dashboard)
+    _app.register_blueprint(auth)
+    _app.register_blueprint(facebook)
+    _app.register_blueprint(hc)
+    _app.register_blueprint(lab)
+    _app.register_blueprint(node)
     def app(env, start_response):
-        _app = App()
-        dashboard.before_request(_app.user_logged_in)
-        facebook.before_request(_app.user_logged_in)
-        _app.register_blueprint(dashboard)
-        _app.register_blueprint(auth)
-        _app.register_blueprint(facebook)
-        _app.register_blueprint(hc)
-        _app.register_blueprint(lab)
-        _app.register_blueprint(node)
         #healthcheck(_app, env)
         return _app(env, start_response)
 
