@@ -3,7 +3,7 @@ from flask.views import MethodView
 from lablog.app import App
 from lablog import config
 from lablog.util.jsontools import jsonify
-from lablog.utils import aes
+from lablog.util import aes
 from flask_oauthlib.provider import OAuth2Provider
 import logging
 from lablog.controllers.auth import oauth
