@@ -16,3 +16,4 @@ requests==2.5.1
 flask-oauthlib==0.9.1
 gevent-websocket==0.9.4
 python-ldap==2.4.20
+pycrypto
