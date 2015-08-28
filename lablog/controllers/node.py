@@ -15,7 +15,7 @@ node = Blueprint(
     url_prefix="/node",
 )
 
-@node.route("", methods=["GET"])
+@node.route("/", methods=["GET"])
 @oauth.require_oauth('inoffice')
 def get_nodes():
     res = g.INFLUX.query(query="SHOW SERIES FROM light")
