@@ -26,6 +26,7 @@ influxdb:
 
 api:
     build: .
+    hostname: api
     command: gunicorn -c /config/gunicorn.conf wsgi:app --reload
     #log_driver: "syslog"
     volumes:
