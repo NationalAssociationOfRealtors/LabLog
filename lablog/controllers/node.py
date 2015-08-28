@@ -31,8 +31,8 @@ def get_nodes():
 
 @node.route("/<node_id>/sensors", methods=["POST"])
 def node_sensors(node_id):
-    logging.info(request.body)
-    j = aes.decrypt(request.body, KEY)
+    logging.info(request.data)
+    j = aes.decrypt(request.data, KEY)
     j = json.loads(j)
     points = []
     for k,v in j.iteritems():
