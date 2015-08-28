@@ -37,12 +37,28 @@ class Kilo(WebSocketApplication):
 
     def __init__(self, *args, **kwargs):
         super(Kilo, self).__init__(*args, **kwargs)
-        MONGO = db.init_mongodb()
-        humongolus.settings(logging, MONGO)
+        self.MONGO = db.init_mongodb()
+        humongolus.settings(logging, self.MONGO)
+        logging.info("KILO running")
 
     @classmethod
     def protocol_name(cls):
         return "json"
+
+    def node_stream(self):
+        self.running = True
+        current = self.ws.handler.active_client
+        while self.running:
+            now = datetime.utcnow()
+            cur = self.MONGO['lablog']['node_stream'].find({'time':{'$gt':now}}, tailable=True, await_data=True)
+            cur.hint([('$natural', 1)])
+            while cur.alive:
+                try:
+                    doc = cur.next()
+                    self.sendto({'event':'node', '_to':current.address, 'data':json.dumps(doc, cls=JavascriptEncoder)})
+                except StopIteration:
+                    gevent.sleep(1)
+
 
     def on_open(self):
         token = verify_message(self.ws.handler.active_client.ws, ['inoffice'])
@@ -54,6 +70,7 @@ class Kilo(WebSocketApplication):
         self.sendto(ev)
         ev['event'] = 'joined'
         self.broadcast(ev)
+        gevent.spawn(self.node_stream)
 
     def on_message(self, ms):
         try:
@@ -105,6 +122,7 @@ class Kilo(WebSocketApplication):
         self.broadcast(data)
 
     def on_close(self, reason):
+        self.running = False
         current = self.ws.handler.active_client
         logging.info("Client Left: {}".format(current.address))
         ev = {'event':'bye', 'data':{'room':self.name}}

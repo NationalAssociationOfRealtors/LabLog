@@ -1,3 +1,6 @@
+from gevent import monkey
+monkey.patch_all()
+
 from werkzeug.wsgi import peek_path_info
 from geventwebsocket import Resource
 from lablog import config
@@ -10,10 +13,7 @@ from lablog.controllers.lab import lab
 from lablog.controllers.node import node
 from lablog.app.kilo import Kilo
 import logging
-from gevent import monkey
-
 logging.basicConfig(level=config.LOG_LEVEL)
-monkey.patch_all()
 
 def healthcheck(app, env):
     if peek_path_info(env) == "healthcheck":
