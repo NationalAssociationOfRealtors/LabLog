@@ -17,7 +17,9 @@ node = Blueprint(
     url_prefix="/node",
 )
 
-SKEY = bytearray(["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1",0x00])
+k = list(config.SKEY)
+k.append(0x00)
+SKEY = bytearray(k)
 KEY = buffer(SKEY)
 
 @node.route("/nodes", methods=["GET"])
