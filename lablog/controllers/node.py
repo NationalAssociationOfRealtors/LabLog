@@ -16,9 +16,8 @@ node = Blueprint(
     url_prefix="/node",
 )
 
-k = [i for i in config.SKEY]
-k.append(0x00)
-KEY = buffer(bytearray(k))
+KEY = "{}0x00".format(config.SKEY)
+KEY = buffer(bytearray(KEY))
 
 @node.route("/nodes", methods=["GET"])
 @oauth.require_oauth('inoffice')
