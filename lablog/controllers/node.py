@@ -5,9 +5,10 @@ from lablog import config
 from lablog.util.jsontools import jsonify
 from lablog.util import aes
 from flask_oauthlib.provider import OAuth2Provider
-import logging
 from lablog.controllers.auth import oauth
 from datetime import datetime
+import logging
+import json
 
 node = Blueprint(
     'node',
