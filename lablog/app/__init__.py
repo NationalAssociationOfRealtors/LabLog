@@ -54,7 +54,10 @@ class App(Flask):
         m = db.init_mongodb()
         try:
             c = Collection(m['lablog'], 'node_stream', capped=True, size=100000)
-        except: pass
+        except:
+            try:
+                m.lablog.command('convertToCapped', 'node_stream', size=100000)
+            except: pass
         m['lablog']['node_stream'].create_index([('tags.node', pymongo.DESCENDING)])
 
     def configure_dbs(self):
