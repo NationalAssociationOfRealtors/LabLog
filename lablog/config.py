@@ -57,8 +57,6 @@ UPS_SMNP_IP = "172.16.14.36"
 
 SKEY = os.environ.get("SKEY")
 
-logging.info("KEY: {}".format(SKEY))
-
 LDAP_LOGIN = True
 
 LDAP_HOST = os.environ.get('LDAP_HOST')
