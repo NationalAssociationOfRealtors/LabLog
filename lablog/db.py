@@ -19,7 +19,7 @@ def init_elasticsearch():
                 sniffer_timeout=60
             )
             es_connected = True
-            logging.info(ES)
+            logging.debug(ES)
         except TransportError as e:
             logging.info("Elasticsearch not connected")
             logging.error(e)
@@ -40,7 +40,6 @@ def init_mongodb():
     return MONGO
 
 def init_influxdb():
-    logging.info("INFLUX")
     influx_connected = False
     while not influx_connected:
         try:

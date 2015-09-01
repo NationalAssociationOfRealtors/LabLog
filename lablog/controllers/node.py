@@ -53,3 +53,16 @@ def node_sensors(node_id):
 
     g.INFLUX.write_points(points)
     return jsonify({'success':True})
+
+@node.route("/<node_id>/sensors", methods=["GET"])
+@oauth.require_oauth('inoffice')
+def get_node_sensors(node_id):
+    q = "SELECT mean(\"value\") as value FROM \"lablog\"..humidity,temperature,light,pot WHERE time > now() - 7d AND node='{}' GROUP BY time(5m) fill(previous)".format(node_id)
+    res = g.INFLUX.query(q)
+    ret = {}
+    for k, v in res.items():
+        ret[k[0]] = []
+        for i in v:
+            ret[k[0]].append(i)
+
+    return jsonify(ret)
