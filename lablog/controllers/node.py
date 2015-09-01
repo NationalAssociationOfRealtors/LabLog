@@ -33,9 +33,6 @@ def get_nodes():
 
 @node.route("/<node_id>/sensors", methods=["POST"])
 def node_sensors(node_id):
-    logging.info(request.data)
-    logging.info(config.SKEY)
-    logging.info(KEY)
     j = aes.decrypt(request.data, KEY)
     logging.info(j)
     j = json.loads(j)
