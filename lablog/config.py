@@ -3,6 +3,7 @@ import logging
 import datetime
 
 LOG_LEVEL = logging.INFO
+logging.basicConfig(level=LOG_LEVEL)
 DEBUG = True
 
 HASH_ROUNDS = 3998
@@ -52,7 +53,11 @@ MONGO_PORT = 27017
 FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID")
 FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET")
 
+UPS_SMNP_IP = "172.16.14.36"
+
 SKEY = os.environ.get("SKEY")
+
+logging.info("KEY: {}".format(SKEY))
 
 LDAP_LOGIN = True
 

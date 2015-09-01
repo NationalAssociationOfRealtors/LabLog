@@ -3,7 +3,7 @@ mongodb:
     hostname: mongodb
     command: "--dbpath=/mongo/data"
     log_driver: "syslog"
-    ports:
+    expose:
         - "27017:27017"
     volumes:
         - /nar/mongo:/mongo/data
@@ -12,7 +12,7 @@ elasticsearch:
     image: elasticsearch:1.5
     hostname: elasticsearch
     log_driver: "syslog"
-    ports:
+    expose:
         - "9200:9200"
         - "9300:9300"
 
@@ -20,31 +20,74 @@ influxdb:
     image: tutum/influxdb
     hostname: influxdb
     log_driver: "syslog"
-    ports:
+    expose:
         - "8086:8086"
         - "8083:8083"
 
-api:
+rabbitdata:
+    image: rabbitmq
+    command: "true"
+    volumes:
+        - /data/log
+        - /data/mnesia
+
+rabbitmq:
+    image: rabbitmq
+    hostname: rabbitmq
+    log_driver: "syslog"
+    expose:
+        - 5672
+        - 15672
+    volumes_from:
+        - rabbitdata
+
+basepython:
     build: .
-    hostname: api
-    command: gunicorn -c /config/gunicorn.conf wsgi:app --reload
+    command: "true"
     #log_driver: "syslog"
     volumes:
         - .:/app
         - ./config:/config
-    links:
-        - mongodb:mongo
-        - elasticsearch:es
-        - influxdb:influx
-    env_file:
-        - .env
     dns:
         - 172.16.24.105
         - 10.6.10.208
         - 8.8.8.8
         - 8.8.4.4
-    ports:
+    env_file:
+        - .env
+
+api:
+    extends:
+        service: basepython
+    hostname: api
+    command: gunicorn -c /config/gunicorn.conf wsgi:app --reload
+    expose:
         - "8000:8000"
+    links:
+        - mongodb:mongo
+        - elasticsearch:es
+        - influxdb:influx
+        - rabbitmq:mq
+
+scheduler:
+    extends:
+        service: basepython
+    command: celery -A lablog.workers worker --loglevel=info
+    links:
+        - mongodb:mongo
+        - elasticsearch:es
+        - influxdb:influx
+        - rabbitmq:mq
+
+workers:
+    extends:
+        service: basepython
+    command: celery -A lablog.workers beat --loglevel=info
+    links:
+        - mongodb:mongo
+        - elasticsearch:es
+        - influxdb:influx
+        - rabbitmq:mq
 
 nginx:
     image: nginx:1.7

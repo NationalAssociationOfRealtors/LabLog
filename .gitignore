@@ -61,3 +61,4 @@ terraform/.terraform
 .env
 /config/nginx/*.crt
 /config/nginx/*.key
+celerybeat-schedule

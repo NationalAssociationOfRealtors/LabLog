@@ -24,6 +24,7 @@ app = App()
 oauth = OAuth2Provider(app)
 
 def ldap_login(un, pw):
+    logging.info('ldap://{}:{}'.format(config.LDAP_HOST, config.LDAP_PORT))
     ld = ldap.initialize('ldap://{}:{}'.format(config.LDAP_HOST, config.LDAP_PORT))
     ld.protocol_version = ldap.VERSION3
     ld.set_option(ldap.OPT_REFERRALS, 0)
