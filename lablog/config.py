@@ -67,3 +67,8 @@ LDAP_BASE_DN = os.environ.get('LDAP_BASE_DN')
 LDAP_USERNAME = os.environ.get('LDAP_USERNAME')
 LDAP_PASSWORD = os.environ.get('LDAP_PASSWORD')
 LDAP_USER_OBJECT_FILTER = os.environ.get('LDAP_USER_OBJECT_FILTER')
+
+
+SLACK_WEBHOOK = os.environ.get("SLACK_WEBHOOK")
+
+logging.info("WEB HOOK: {}".format(SLACK_WEBHOOK))

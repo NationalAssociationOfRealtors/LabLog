@@ -6,6 +6,7 @@ from lablog.models.client import Token, Admin
 from uuid import uuid4
 from datetime import datetime
 import humongolus
+import requests
 import gevent
 import logging
 import urlparse
@@ -120,6 +121,8 @@ class Kilo(WebSocketApplication):
         u['times'] = user.get_punchcard(self.ws.handler.active_client.INFLUX)
         data['data']['user'] = u
         self.broadcast(data)
+        disp = "arrived" if user.in_office else "departed"
+        res = requests.post(config.SLACK_WEBHOOK, data=json.dumps({"text":"{} has {}".format(user.name, disp)}))
 
     def on_close(self, reason):
         self.running = False
