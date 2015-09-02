@@ -23,7 +23,7 @@ SKEY = bytearray(k)
 KEY = buffer(SKEY)
 
 @node.route("/nodes", methods=["GET"])
-@oauth.require_oauth('inoffice')
+@oauth.require_oauth('analytics')
 def get_nodes():
     res = g.INFLUX.query(query="SHOW SERIES FROM light")
     nodes = []
@@ -55,7 +55,7 @@ def node_sensors(node_id):
     return jsonify({'success':True})
 
 @node.route("/<node_id>/sensors", methods=["GET"])
-@oauth.require_oauth('inoffice')
+@oauth.require_oauth('analytics')
 def get_node_sensors(node_id):
     q = "SELECT mean(\"value\") as value FROM \"lablog\"..humidity,temperature,light,pot WHERE time > now() - 2d AND node='{}' GROUP BY time(1h) fill(previous)".format(node_id)
     res = g.INFLUX.query(q)

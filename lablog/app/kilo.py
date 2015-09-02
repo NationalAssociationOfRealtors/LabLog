@@ -61,7 +61,7 @@ class Kilo(WebSocketApplication):
 
 
     def on_open(self):
-        token = verify_message(self.ws.handler.active_client.ws, ['inoffice'])
+        token = verify_message(self.ws.handler.active_client.ws, ['inoffice', 'analytics'])
         self.name = 'foo'
         current = self.ws.handler.active_client
         current.token = token
