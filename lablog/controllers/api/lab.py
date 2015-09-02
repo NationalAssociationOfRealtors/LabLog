@@ -11,7 +11,7 @@ lab = Blueprint(
     'lab',
     __name__,
     template_folder=config.TEMPLATES,
-    url_prefix="/lab",
+    url_prefix="/api/{}/lab".format(config.API_VERSION),
 )
 
 @lab.route("/me", methods=["GET"])

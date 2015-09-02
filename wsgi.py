@@ -9,8 +9,8 @@ from lablog.controllers.dashboard import dashboard
 from lablog.controllers.auth import auth
 from lablog.controllers.auth.facebook import facebook
 from lablog.controllers.healthcheck import hc
-from lablog.controllers.lab import lab
-from lablog.controllers.node import node
+from lablog.controllers.api.lab import lab
+from lablog.controllers.api.node import node
 from lablog.app.kilo import Kilo
 import logging
 logging.basicConfig(level=config.LOG_LEVEL)

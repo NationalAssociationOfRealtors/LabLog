@@ -6,6 +6,8 @@ LOG_LEVEL = logging.INFO
 logging.basicConfig(level=LOG_LEVEL)
 DEBUG = True
 
+API_VERSION = "v1.0"
+
 HASH_ROUNDS = 3998
 HASH_ALGO = "pbkdf2-sha512"
 HASH_ALGO_CLS = "pbkdf2_sha512"

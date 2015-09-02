@@ -14,7 +14,7 @@ node = Blueprint(
     'node',
     __name__,
     template_folder=config.TEMPLATES,
-    url_prefix="/node",
+    url_prefix="/api/{}/node".format(config.API_VERSION),
 )
 
 k = list(config.SKEY)
