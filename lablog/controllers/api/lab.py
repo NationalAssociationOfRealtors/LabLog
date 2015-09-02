@@ -31,3 +31,17 @@ def team():
         ret.append(u)
 
     return jsonify(ret)
+
+@lab.route("/ups", methods=["GET"])
+#@oauth.require_oauth('analytics')
+def ups():
+    q = "SELECT mean(\"value\") as value FROM \"lablog\"..ups_output_power WHERE time > now() - 2d GROUP BY time(15m), \"line\""
+    res = g.INFLUX.query(q)
+    ret = {}
+    for s in res.raw['series']:
+        n = "line-{}".format(s['tags']['line'])
+        ret[n] = s['values']
+
+    logging.info(ret)
+
+    return jsonify(ret)

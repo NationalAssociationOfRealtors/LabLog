@@ -96,7 +96,7 @@ class Admin(orm.Document):
         return sa
 
     def get_punchcard(self, influx):
-        res = influx.query("select * from inoffice where user_id='{}'".format(self._id))
+        res = influx.query("SELECT * from inoffice where user_id='{}' AND time > now() - 2d".format(self._id))
         r = [p for p in res.get_points()]
         r.reverse()
         return r
