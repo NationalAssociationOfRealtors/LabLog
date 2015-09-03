@@ -61,8 +61,6 @@ class Kilo(WebSocketApplication):
                 except StopIteration:
                     gevent.sleep(1)
 
-        MONGO.close()
-
 
     def on_open(self):
         token = verify_message(self.ws.handler.active_client.ws, ['inoffice', 'analytics'])
@@ -81,7 +79,6 @@ class Kilo(WebSocketApplication):
         if not message: return
         try:
             token = self.ws.handler.active_client.token
-            logging.info(message)
             ms = json.loads(message)
             ms['token'] = token
             ev = ms['event']
