@@ -15,6 +15,9 @@ import os
 
 logging.basicConfig(level=config.LOG_LEVEL)
 
+MONGO = db.init_mongodb()
+humongolus.settings(logging, MONGO)
+
 class SocketException(Exception):
 
     def json(self):
@@ -38,8 +41,6 @@ class Kilo(WebSocketApplication):
 
     def __init__(self, *args, **kwargs):
         super(Kilo, self).__init__(*args, **kwargs)
-        self.MONGO = db.init_mongodb()
-        humongolus.settings(logging, self.MONGO)
         logging.info("KILO running")
 
     @classmethod
@@ -51,7 +52,7 @@ class Kilo(WebSocketApplication):
         current = self.ws.handler.active_client
         while self.running:
             now = datetime.utcnow()
-            cur = self.MONGO['lablog']['node_stream'].find({'time':{'$gt':now}}, tailable=True, await_data=True)
+            cur = MONGO['lablog']['node_stream'].find({'time':{'$gt':now}}, tailable=True, await_data=True)
             cur.hint([('$natural', 1)])
             while cur.alive:
                 try:
@@ -60,9 +61,12 @@ class Kilo(WebSocketApplication):
                 except StopIteration:
                     gevent.sleep(1)
 
+        MONGO.close()
+
 
     def on_open(self):
         token = verify_message(self.ws.handler.active_client.ws, ['inoffice', 'analytics'])
+        logging.info("Socket OPENED!")
         self.name = 'foo'
         current = self.ws.handler.active_client
         current.token = token
@@ -73,10 +77,12 @@ class Kilo(WebSocketApplication):
         self.broadcast(ev)
         gevent.spawn(self.node_stream)
 
-    def on_message(self, ms):
+    def on_message(self, message):
+        if not message: return
         try:
             token = self.ws.handler.active_client.token
-            ms = json.loads(ms)
+            logging.info(message)
+            ms = json.loads(message)
             ms['token'] = token
             ev = ms['event']
             ms['_to'] = tuple(ms.get('_to', {}))
@@ -126,6 +132,7 @@ class Kilo(WebSocketApplication):
 
     def on_close(self, reason):
         self.running = False
+        MONGO.close()
         current = self.ws.handler.active_client
         logging.info("Client Left: {}".format(current.address))
         ev = {'event':'bye', 'data':{'room':self.name}}

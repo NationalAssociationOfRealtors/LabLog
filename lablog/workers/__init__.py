@@ -5,6 +5,7 @@ from lablog import config
 from lablog import db
 import humongolus
 import logging
+import requests
 from datetime import datetime
 
 app = Celery(__name__)
@@ -20,6 +21,7 @@ m = M(config.UPS_SMNP_IP, "NARpublic", 1)
 
 model = m.upsIdentModel
 manuf = m.upsIdentManufacturer
+
 
 @app.task
 def monitor_ups():

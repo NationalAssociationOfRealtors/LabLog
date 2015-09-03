@@ -77,6 +77,7 @@ class App(Flask):
         self.config['SESSION_MONGODB'] = db.init_mongodb()
         self.config['SESSION_MONGODB_DB'] = "app_sessions"
         self.config['SESSION_MONGODB_COLLECT'] = "sessions"
+        self.config['SESSION_MONGODB']['app_sessions']['sessions'].create_index('id')
         Session(self)
 
     def init_login(self):
