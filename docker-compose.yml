@@ -44,7 +44,6 @@ rabbitmq:
 basepython:
     build: .
     command: "true"
-    #log_driver: "syslog"
     volumes:
         - .:/app
         - ./config:/config
@@ -61,6 +60,7 @@ api:
         service: basepython
     hostname: api
     command: gunicorn -c /config/gunicorn.conf wsgi:app --reload
+    log_driver: "syslog"
     expose:
         - "8000:8000"
     links:
@@ -73,6 +73,7 @@ scheduler:
     extends:
         service: basepython
     command: celery -A lablog.workers worker --loglevel=info
+    log_driver: "syslog"
     links:
         - mongodb:mongo
         - elasticsearch:es
@@ -83,6 +84,7 @@ workers:
     extends:
         service: basepython
     command: celery -A lablog.workers beat --loglevel=info
+    log_driver: "syslog"
     links:
         - mongodb:mongo
         - elasticsearch:es
@@ -91,7 +93,7 @@ workers:
 
 nginx:
     image: nginx:1.7
-    #log_driver: "syslog"
+    log_driver: "syslog"
     links:
         - api:backend
     volumes:
