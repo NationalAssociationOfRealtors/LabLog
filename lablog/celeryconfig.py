@@ -25,9 +25,9 @@ CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'
 CELERY_DEFAULT_ROUTING_KEY = 'default'
 CELERY_TIMEZONE = 'UTC'
 
-#CELERYBEAT_SCHEDULE = {
-#    'monitor_ups': {
-#        'task': 'lablog.workers.monitor_ups',
-#        'schedule': datetime.timedelta(minutes=1),
-#    },
-#}
+CELERYBEAT_SCHEDULE = {
+    'monitor_ups': {
+        'task': 'lablog.workers.monitor_ups',
+        'schedule': datetime.timedelta(minutes=1),
+    },
+}
