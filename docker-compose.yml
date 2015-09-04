@@ -35,7 +35,7 @@ rabbitmq:
     image: rabbitmq
     hostname: rabbitmq
     log_driver: "syslog"
-    expose:
+    ports:
         - 5672
         - 15672
     volumes_from:

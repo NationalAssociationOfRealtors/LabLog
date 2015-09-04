@@ -71,6 +71,7 @@ class App(Flask):
         g.ES = db.init_elasticsearch()
         g.INFLUX = db.init_influxdb()
         g.MONGO = db.init_mongodb()
+        g.MQ = db.init_mq()
         humongolus.settings(logging, g.MONGO)
 
     def init_session(self):
