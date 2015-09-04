@@ -1,9 +1,11 @@
 from pymongo import MongoClient
 from elasticsearch import Elasticsearch
 from elasticsearch import TransportError
+from kombu import Connection
 from lablog import config
 from lablog import user_mapping
 from lablog import influx
+from lablog import celeryconfig
 import influxdb
 import gevent
 import logging
@@ -57,6 +59,9 @@ def init_influxdb():
             gevent.sleep(1)
 
     return INFLUX
+
+def init_mq():
+    return Connection(celeryconfig.BROKER_URL)
 
 def create_index(ES):
     exists = ES.indices.exists(config.ES_INDEX)

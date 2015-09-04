@@ -19,12 +19,10 @@ load("/app/data/mib/RFC1213-MIB.txt")
 load("/app/data/mib/stdupsv1.mib")
 m = M(config.UPS_SMNP_IP, "NARpublic", 1)
 
-model = m.upsIdentModel
-manuf = m.upsIdentManufacturer
-
-
 @app.task
 def monitor_ups():
+    model = m.upsIdentModel
+    manuf = m.upsIdentManufacturer
     points = []
     points.append(dict(
         measurement="ups_battery_voltage",
