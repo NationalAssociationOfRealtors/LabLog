@@ -50,7 +50,9 @@ class Kilo(WebSocketApplication):
         return "json"
 
     def node_stream(self, body, msg):
-        self.broadcast({'event':'node', 'data':json.dumps(body, cls=JavascriptEncoder)})
+        current = self.ws.handler.active_client
+        self.sendto({'event':'node', '_to':current.address, 'data':json.dumps(body, cls=JavascriptEncoder)})
+        #self.broadcast({'event':'node', 'data':json.dumps(body, cls=JavascriptEncoder)})
         return True
 
     def on_open(self):
