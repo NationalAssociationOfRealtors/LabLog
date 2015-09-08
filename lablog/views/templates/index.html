@@ -5,6 +5,7 @@
 {% block content %}
 <div class="jumbotron">
     <h1>Welcome {{current_user.name}}</h1>
+    <h2>Come see the <a href="/fe">dashboard</a></h2>
     <h3>Clients</h3>
     <ul>
         {% for c in client.find() %}
@@ -12,4 +13,14 @@
         {% endfor %}
     </ul>
 </div>
+<script type="text/javascript">
+    try{
+        var access_token = window.location.href.split("access_token=")[1].split("&")[0];
+        var error = window.location.href.split("error=")[1];
+        window.opener.postMessage({access_token:access_token, error: error}, "*");
+        window.close();
+    }catch(e){
+        console.log(e);
+    }
+</script>
 {% endblock %}

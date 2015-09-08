@@ -151,7 +151,7 @@ def save_token(token, request, *args, **kwargs):
         'client':request.client._id,
         'user':current_user._id,
     })
-    for t in toks: t.remove();
+    for t in toks: t.remove()
     expires = datetime.utcnow() + timedelta(days=10)
 
     tok = Token()

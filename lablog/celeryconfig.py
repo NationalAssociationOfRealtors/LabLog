@@ -30,4 +30,8 @@ CELERYBEAT_SCHEDULE = {
         'task': 'lablog.workers.monitor_ups',
         'schedule': datetime.timedelta(minutes=1),
     },
+    'monitor_weather': {
+        'task': 'lablog.workers.get_weather_data',
+        'schedule': datetime.timedelta(minutes=4),
+    },
 }

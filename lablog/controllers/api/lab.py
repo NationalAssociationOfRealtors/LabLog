@@ -33,7 +33,7 @@ def team():
     return jsonify(ret)
 
 @lab.route("/ups", methods=["GET"])
-#@oauth.require_oauth('analytics')
+@oauth.require_oauth('analytics')
 def ups():
     q = "SELECT mean(\"value\") as value FROM \"lablog\"..ups_output_power WHERE time > now() - 2d GROUP BY time(15m), \"line\""
     res = g.INFLUX.query(q)
@@ -43,5 +43,18 @@ def ups():
         ret[n] = s['values']
 
     logging.info(ret)
+
+    return jsonify(ret)
+
+@lab.route("/weather", methods=["GET"])
+@oauth.require_oauth('analytics')
+def weather():
+    q = "SELECT mean(\"value\") as value FROM \"lablog\"..\"temp-c\",\"relative-humidity\" WHERE time > now() - 2d GROUP BY time(15m)"
+    res = g.INFLUX.query(q)
+    ret = {}
+    for k, v in res.items():
+        ret[k[0]] = []
+        for i in v:
+            ret[k[0]].append(i)
 
     return jsonify(ret)
