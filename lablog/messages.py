@@ -27,10 +27,6 @@ class Consumer(ConsumerMixin):
     def get_consumers(self, Consumer, channel):
         return [Consumer(self.queues, accept=['json', 'pickle'], callbacks=[self.process_message])]
 
-    def run(self, *args, **kwargs):
-        logging.info("Consumer Running")
-        super(Consumer, self).run(*args, **kwargs)
-
     def process_message(self, body, msg):
         try:
             if self.on_message: self.on_message(body, msg)
