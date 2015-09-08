@@ -3,7 +3,7 @@ from lablog import config
 from lablog import db
 from lablog.util.jsontools import JavascriptEncoder
 from lablog.models.client import Token, Admin
-from lablog import rabbitmq
+from lablog import messages
 from uuid import uuid4
 from datetime import datetime
 import humongolus
@@ -61,7 +61,7 @@ class Kilo(WebSocketApplication):
         self.sendto(ev)
         ev['event'] = 'joined'
         self.broadcast(ev)
-        consumer = rabbitmq.Consumer(db.init_mq(), [rabbitmq.Queues.node], self.node_stream)
+        consumer = messages.Consumer(db.init_mq(), [messages.Queues.node], self.node_stream)
         gevent.spawn(consumer.run)
 
     def on_message(self, message):

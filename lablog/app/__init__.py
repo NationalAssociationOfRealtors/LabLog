@@ -48,24 +48,16 @@ class App(Flask):
         if db is not None:
             db.close()
 
-        return exception
+        if self.config.get('SESSION_MONGODB'):
+            self.config['SESSION_MONGODB'].close()
 
-    def create_capped_collection(self):
-        m = db.init_mongodb()
-        try:
-            c = Collection(m['lablog'], 'node_stream', capped=True, size=100000)
-        except:
-            try:
-                m.lablog.command('convertToCapped', 'node_stream', size=100000)
-            except: pass
-        m['lablog']['node_stream'].create_index([('tags.node', pymongo.DESCENDING)])
+        return exception
 
     def configure_dbs(self):
         es = db.init_elasticsearch()
         db.create_index(es)
         influx = db.init_influxdb()
         db.create_shards(influx)
-        self.create_capped_collection()
 
     def init_dbs(self):
         g.ES = db.init_elasticsearch()

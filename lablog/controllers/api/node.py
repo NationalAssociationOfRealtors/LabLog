@@ -4,7 +4,7 @@ from lablog.app import App
 from lablog import config
 from lablog.util.jsontools import jsonify
 from lablog.util import aes
-from lablog import rabbitmq
+from lablog import messages
 from flask_oauthlib.provider import OAuth2Provider
 from lablog.controllers.auth import oauth
 from datetime import datetime
@@ -49,7 +49,7 @@ def node_sensors(node_id):
                 value=v
             )
         )
-        rabbitmq.publish(g.MQ, p, rabbitmq.Exchanges.sensors, 'node.'.format(k))
+        messages.publish(g.MQ, p, messages.Exchanges.sensors, 'node.'.format(k))
         points.append(p)
 
     g.INFLUX.write_points(points)
