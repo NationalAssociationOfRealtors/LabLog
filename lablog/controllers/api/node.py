@@ -3,8 +3,8 @@ from flask.views import MethodView
 from lablog.app import App
 from lablog import config
 from lablog.util.jsontools import jsonify
-from lablog.util import aes
 from lablog import messages
+from lablog.interfaces.sensornode import Node
 from flask_oauthlib.provider import OAuth2Provider
 from lablog.controllers.auth import oauth
 from datetime import datetime
@@ -34,25 +34,8 @@ def get_nodes():
 
 @node.route("/<node_id>/sensors", methods=["POST"])
 def node_sensors(node_id):
-    j = aes.decrypt(request.data, KEY)
-    logging.info(j)
-    j = json.loads(j)
-    points = []
-    for k,v in j.iteritems():
-        p = dict(
-            measurement=k,
-            tags=dict(
-                node=str(node_id),
-            ),
-            time=datetime.utcnow(),
-            fields=dict(
-                value=v
-            )
-        )
-        messages.publish(g.MQ, p, messages.Exchanges.sensors, 'node.'.format(k))
-        points.append(p)
-
-    g.INFLUX.write_points(points)
+    n = Node(node_id)
+    n.go(g.INFLUX, g.MQ, messages.Exchanges.sensors, routing_key="node.{measurement}", data=request.data)
     return jsonify({'success':True})
 
 @node.route("/<node_id>/sensors", methods=["GET"])

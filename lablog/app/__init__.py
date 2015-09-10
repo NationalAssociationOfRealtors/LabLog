@@ -51,6 +51,10 @@ class App(Flask):
         if self.config.get('SESSION_MONGODB'):
             self.config['SESSION_MONGODB'].close()
 
+        db = getattr(g, 'MQ', None)
+        if db is not None:
+            db.release()
+
         return exception
 
     def configure_dbs(self):

@@ -12,6 +12,7 @@ CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
 
 CELERY_IMPORTS = (
     'lablog.workers',
+    'lablog.hooks',
 )
 
 default_q = Queue('default', Exchange('default'), routing_key='default')
@@ -33,5 +34,9 @@ CELERYBEAT_SCHEDULE = {
     'monitor_weather': {
         'task': 'lablog.workers.get_weather_data',
         'schedule': datetime.timedelta(minutes=4),
+    },
+    'monitor_smart_meter': {
+        'task': 'lablog.workers.get_smartmeter_data',
+        'schedule': datetime.timedelta(seconds=30),
     },
 }

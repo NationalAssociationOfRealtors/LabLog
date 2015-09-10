@@ -4,6 +4,7 @@ from lablog import config
 from lablog import db
 from lablog.util.jsontools import JavascriptEncoder
 from lablog.models.client import Token, Admin
+from lablog.hooks import post_slack
 from lablog import messages
 from uuid import uuid4
 from datetime import datetime
@@ -16,10 +17,8 @@ import json
 import os
 
 logging.basicConfig(level=config.LOG_LEVEL)
-
 MONGO = db.init_mongodb()
 humongolus.settings(logging, MONGO)
-MQ = db.init_mq()
 
 class SocketException(Exception):
 
@@ -52,26 +51,21 @@ class Kilo(WebSocketApplication):
     def node_stream(self, body, msg):
         current = self.ws.handler.active_client
         self.sendto({'event':'node', '_to':current.address, 'data':json.dumps(body, cls=JavascriptEncoder)})
-        #self.broadcast({'event':'node', 'data':json.dumps(body, cls=JavascriptEncoder)})
         return True
 
     def on_open(self):
         token = verify_message(self.ws.handler.active_client.ws, ['inoffice', 'analytics'])
-        self.name = 'foo'
+        self.INFLUX = db.init_influxdb()
+        self.MQ = db.init_mq()
         current = self.ws.handler.active_client
         current.token = token
-        current.INFLUX = db.init_influxdb()
-        ev = {'event':'me', '_to':current.address, 'data':{'room':self.name}}
-        self.sendto(ev)
-        ev['event'] = 'joined'
-        self.broadcast(ev)
         q = Queue(
             name="{}".format(current.address),
             exchange=messages.Exchanges.sensors,
             routing_key="node.*",
             exclusive=True,
         )
-        consumer = messages.Consumer(MQ, [q], self.node_stream)
+        consumer = messages.Consumer(self.MQ, [q], self.node_stream)
         self.greenlet = gevent.spawn(consumer.run)
 
     def on_message(self, message):
@@ -117,23 +111,21 @@ class Kilo(WebSocketApplication):
                 value=data['data']['result']
             )
         )]
-        self.ws.handler.active_client.INFLUX.write_points(point)
+        self.INFLUX.write_points(point)
         user.save();
         u = user.json()
-        u['times'] = user.get_punchcard(self.ws.handler.active_client.INFLUX)
+        u['times'] = user.get_punchcard(self.INFLUX)
         data['data']['user'] = u
         self.broadcast(data)
         disp = "arrived" if user.in_office else "departed"
-        res = requests.post(config.SLACK_WEBHOOK, data=json.dumps({"text":"{} has {}".format(user.name, disp)}))
+        post_slack.delay(message={"text":"{} has {}".format(user.name, disp)})
 
     def on_close(self, reason):
-        self.running = False
         MONGO.close()
+        self.MQ.release()
         gevent.kill(self.greenlet)
         current = self.ws.handler.active_client
         logging.info("Client Left: {}".format(current.address))
-        ev = {'event':'bye', 'data':{'room':self.name}}
-        self.broadcast(ev)
 
     def sendto(self, ms):
         _to = self.ws.handler.server.clients.get(ms['_to'])
