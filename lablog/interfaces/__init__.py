@@ -1,4 +1,5 @@
 from lablog import messages
+import logging
 
 class NotImplemented(Exception): pass
 class NoData(Exception): pass
@@ -21,7 +22,8 @@ class Interface(object):
 
     def queue(self, data, mq, exchange, routing_key):
         for i in data:
-            messages.publish(mq, i, exchange, routing_key=routing_key.format(**i))
+            key = routing_key.format(**i)
+            messages.publish(mq, i, exchange, routing_key=key)
 
     def go(self, db, mq, exchange, routing_key, data=None):
         raw_data = self.data(data=data)
