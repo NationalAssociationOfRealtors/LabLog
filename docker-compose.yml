@@ -1,3 +1,9 @@
+mongodata:
+    image: mongo:2.6
+    command: "true"
+    volumes:
+        - /nar/mongo:/mongo/data
+
 mongodb:
     image: mongo:2.6
     hostname: mongodb
@@ -5,8 +11,14 @@ mongodb:
     log_driver: "syslog"
     expose:
         - "27017:27017"
+    volumes_from:
+        - mongodata
+
+elasticdata:
+    image: elasticsearch:1.5
+    command: "true"
     volumes:
-        - /nar/mongo:/mongo/data
+        - /nar/elasticsearch:/usr/share/elasticsearch/data
 
 elasticsearch:
     image: elasticsearch:1.5
@@ -15,6 +27,14 @@ elasticsearch:
     expose:
         - "9200:9200"
         - "9300:9300"
+    volumes_from:
+        - elasticdata
+
+influxdata:
+    image: tutum/influxdb
+    command: "true"
+    volumes:
+        - /nar/influx:/data
 
 influxdb:
     image: tutum/influxdb
@@ -23,6 +43,8 @@ influxdb:
     ports:
         - "8086:8086"
         - "8083:8083"
+    volumes_from:
+        - influxdata
 
 rabbitdata:
     image: rabbitmq
