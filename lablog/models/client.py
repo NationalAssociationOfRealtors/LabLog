@@ -140,6 +140,7 @@ class Token(orm.Document):
         orm.Index('refresh_token', key=('refresh_token', 1), unique=True),
         orm.Index('client', key=('client', 1)),
         orm.Index('user', key=('user', 1)),
+        orm.Index('user_agent', key=('user_agent', 1)),
     ]
 
     access_token = field.Char()
@@ -148,6 +149,7 @@ class Token(orm.Document):
     scopes = orm.List(type=unicode)
     expires = field.Date()
     user = field.DocumentId(type=Admin)
+    user_agent = field.Char()
     _type = field.Char()
 
     @property

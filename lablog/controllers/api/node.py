@@ -41,7 +41,7 @@ def node_sensors(node_id):
 @node.route("/<node_id>/sensors", methods=["GET"])
 @oauth.require_oauth('analytics')
 def get_node_sensors(node_id):
-    q = "SELECT mean(\"value\") as value FROM \"lablog\"..humidity,temperature,light,pot WHERE time > now() - 2d AND node='{}' GROUP BY time(1h) fill(previous)".format(node_id)
+    q = "SELECT mean(\"value\") as value FROM \"lablog\"..humidity,temperature,light,pot WHERE time > now() - 12h AND node='{}' GROUP BY time(1h) fill(0)".format(node_id)
     res = g.INFLUX.query(q)
     ret = {}
     for k, v in res.items():

@@ -136,20 +136,24 @@ def save_grant(client_id, code, request, *args, **kwargs):
 
 @oauth.tokengetter
 def load_token(access_token=None, refresh_token=None):
+    ua = request.environ.get('HTTP_USER_AGENT')
     if access_token:
         logging.info("Token {}".format(access_token))
         logging.info("Length {}".format(len(access_token)))
         logging.info("Token {}".format(refresh_token))
-        t = Token.find_one({'access_token':access_token})
+        t = Token.find_one({'access_token':access_token, 'user_agent':ua})
         return t
     elif refresh_token:
         return Token.find_one({'refresh_token':refresh_token})
 
 @oauth.tokensetter
 def save_token(token, request, *args, **kwargs):
+    logging.info(request)
+    ua = request.headers.get('User-Agent')
     toks = Token.find({
         'client':request.client._id,
         'user':current_user._id,
+        'user_agent':ua,
     })
     for t in toks: t.remove()
     expires = datetime.utcnow() + timedelta(days=10)
@@ -162,6 +166,7 @@ def save_token(token, request, *args, **kwargs):
     tok.expires = expires
     tok.client = request.client
     tok.user = current_user
+    tok.user_agent = ua
     tok.save()
     user = current_user
     add = True
