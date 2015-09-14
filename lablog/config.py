@@ -25,7 +25,7 @@ ES_HOSTS = [{"host":"es", "port":9200},]
 
 AUTH_SUBDOMAIN = "auth"
 
-SECRET_KEY = "!!zer0K00L!!"
+SECRET_KEY = os.getenv("SECRET_KEY")
 SERVER_NAME = os.getenv("SERVER_NAME")
 
 SESSION_COOKIE_NAME = "lablog"

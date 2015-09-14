@@ -148,7 +148,6 @@ def load_token(access_token=None, refresh_token=None):
 
 @oauth.tokensetter
 def save_token(token, request, *args, **kwargs):
-    logging.info(request)
     ua = request.headers.get('User-Agent')
     toks = Token.find({
         'client':request.client._id,
