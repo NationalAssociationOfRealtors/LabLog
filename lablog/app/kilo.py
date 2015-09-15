@@ -29,10 +29,12 @@ class SocketException(Exception):
 
 def verify_message(client, scopes):
     args = urlparse.parse_qs(client.environ.get('QUERY_STRING'))
+    logging.info(args)
     token = args.get('token')[0]
+    logging.info(token)
     client_id = args.get('client_id')[0]
     t = Token.find_one({'access_token':token})
-    if str(t._get('client')._value) == client_id and t.expires > datetime.utcnow():
+    if t and str(t._get('client')._value) == client_id and t.expires > datetime.utcnow():
         for i in scopes:
             if not i in t.scopes: raise SocketException('Invalid scope')
         return t
@@ -54,7 +56,12 @@ class Kilo(WebSocketApplication):
         return True
 
     def on_open(self):
-        token = verify_message(self.ws.handler.active_client.ws, ['inoffice', 'analytics'])
+        try:
+            token = verify_message(self.ws.handler.active_client.ws, ['inoffice', 'analytics'])
+        except SocketException as e:
+            logging.error(e)
+            self.ws.handler.active_client.ws.send(json.dumps({'event':'invalid_access',  'data':e.json()}))
+            return
         self.INFLUX = db.init_influxdb()
         self.MQ = db.init_mq()
         current = self.ws.handler.active_client

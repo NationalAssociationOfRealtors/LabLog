@@ -10,6 +10,7 @@ from lablog.models.client import Client, Admin, Token, Grant, ClientRef
 from lablog.util import password
 from datetime import datetime, timedelta
 from flask_oauthlib.provider import OAuth2Provider
+import user_agents
 import logging
 import ldap
 
@@ -136,7 +137,7 @@ def save_grant(client_id, code, request, *args, **kwargs):
 
 @oauth.tokengetter
 def load_token(access_token=None, refresh_token=None):
-    ua = request.environ.get('HTTP_USER_AGENT')
+    ua = str(user_agents.parse(request.environ.get('HTTP_USER_AGENT')))
     if access_token:
         logging.info("Token {}".format(access_token))
         logging.info("Length {}".format(len(access_token)))
@@ -148,7 +149,7 @@ def load_token(access_token=None, refresh_token=None):
 
 @oauth.tokensetter
 def save_token(token, request, *args, **kwargs):
-    ua = request.headers.get('User-Agent')
+    ua = str(user_agents.parse(request.headers.get('User-Agent')))
     toks = Token.find({
         'client':request.client._id,
         'user':current_user._id,
