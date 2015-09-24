@@ -82,8 +82,25 @@ def create_index(ES):
     return
 
 def create_shards(INFLUX):
-    logging.info("Creating Influxdb database")
+    logging.info("Creating Influxdb database, retention policies and continuous queries")
     try:
         res = INFLUX.create_database(config.INFLUX_DATABASE)
     except Exception as e:
         logging.error(e)
+
+    try:
+        for policy in influx.POLICIES:
+            INFLUX.create_retention_policy(
+                policy['name'],
+                policy['duration'],
+                policy['replication'],
+                database=config.INFLUX_DATABASE,
+                default=policy['default']
+            )
+        for cq in influx.QUERIES:
+            for measurement in influx.MEASUREMENTS:
+                query = cq['query'].format(**{"database":config.INFLUX_DATABASE, "measurement":measurement})
+                q = "CREATE CONTINUOUS QUERY \"{}\" ON {} BEGIN {} END".format(cq['name'].format(**{'measurement':measurement}), config.INFLUX_DATABASE, query)
+                INFLUX.query(q)
+    except Exception as e:
+        logging.exception(e)

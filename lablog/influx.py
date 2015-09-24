@@ -1,57 +1,37 @@
-SPACES= [
+MEASUREMENTS = [
+    "weather",
+    "energy",
+    "node",
+]
+
+POLICIES = [
 {
-    "name": "insights",
-    "retentionPolicy": "inf",
-    "shardDuration": "1d",
-    "regex": "/.*/",
-    "replicationFactor": 1,
-    "split": 1
+    "name": "\"realtime\"",
+    "duration": "1d",
+    "replication": 1,
+    "default":True,
 },
 {
-    "name": "events",
-    "retentionPolicy": "7d",
-    "shardDuration": "2h",
-    "regex": "/.*/",
-    "replicationFactor": 1,
-    "split": 1
+    "name": "\"15minute\"",
+    "duration": "4w",
+    "replication": 1,
+    "default": False,
 },
 {
-    "name": "5m_rollup",
-    "retentionPolicy": "30d",
-    "shardDuration": "1h",
-    "regex": "/^5m.*/",
-    "replicationFactor": 1,
-    "split": 1
-},
-{
-    "name": "30m_rollup",
-    "retentionPolicy": "60d",
-    "shardDuration": "1h",
-    "regex": "/^30m.*/",
-    "replicationFactor": 1,
-    "split": 1
-},
-{
-    "name": "1h_rollup",
-    "retentionPolicy": "inf",
-    "shardDuration": "5h",
-    "regex": "/^1h.*/",
-    "replicationFactor": 1,
-    "split": 1
-},
-{
-    "name": "24h_rollup",
-    "retentionPolicy": "inf",
-    "shardDuration": "24h",
-    "regex": "/^24h.*/",
-    "replicationFactor": 1,
-    "split": 1
-}]
+    "name": "\"1hour\"",
+    "duration": "INF",
+    "replication": 1,
+    "default": False,
+}
+]
 
 QUERIES = [
-    "SELECT mean(value) as value, type FROM /^events.*/ GROUP BY time(5m), type INTO 5m.:series_name.[type].mean",
-    "SELECT mean(value) as value, type FROM /^events.*/ GROUP BY time(30m), type INTO 30m.:series_name.[type].mean",
-    "SELECT mean(value) as value, type FROM /^events.*/ GROUP BY time(1h), type INTO 1h.:series_name.[type].mean",
-    "SELECT mean(value) as value, type FROM /^events.*/ GROUP BY time(24h), type INTO 24h.:series_name.[type].mean",
-    "SELECT mean(value) as value, type FROM /^insights.*/ GROUP BY time(7d), type INTO week.:series_name.[type].mean",
+    {
+        "name":"15_minute_rollup.{measurement}",
+        "query":"SELECT mean(\"value\") as value INTO \"{database}\".\"15minute\".\"{measurement}\" FROM \"{database}\".\"default\".\"{measurement}\" GROUP BY time(15m), *"
+    },
+    {
+        "name":"1_hour_rollup.{measurement}",
+        "query":"SELECT mean(\"value\") as value INTO \"{database}\".\"1hour\".\"{measurement}\" FROM \"{database}\".\"default\".\"{measurement}\" GROUP BY time(1h), *"
+    }
 ]

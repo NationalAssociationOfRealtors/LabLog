@@ -25,23 +25,22 @@ class EnergyGateway(Interface):
         return res.json()
 
     def parse_data(self, data):
-        power = float(data['demand'])
-        received = float(data['summation_received'])
-        delivered = float(data['summation_delivered'])
-        price = float(data['price'])
-        amps = power/240
+        d = {}
+        d['power'] = float(data['demand'])
+        d['received'] = float(data['summation_received'])
+        d['delivered'] = float(data['summation_delivered'])
+        d['price'] = float(data['price'])
+        d['amps'] = d['power']/240
+        now = datetime.utcnow()
         points = [dict(
-            measurement="smartmeter",
-            time=datetime.utcnow(),
+            measurement="energy",
+            time=now,
             tags=dict(
                 macid=self.macid,
+                type="smartmeter.{}".format(k),
             ),
             fields=dict(
-                power=power,
-                to_grid=received,
-                from_grid=delivered,
-                amps=amps,
-                price=price,
+                value=v
             ),
-        )]
+        ) for k,v in d.iteritems()]
         return points

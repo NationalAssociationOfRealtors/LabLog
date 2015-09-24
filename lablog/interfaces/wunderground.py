@@ -36,10 +36,11 @@ class Wunderground(Interface):
             if k in self.KEYS:
                 value = self.parse_value(v)
                 points.append(dict(
-                    measurement=self.slugify(k),
+                    measurement="weather",
                     time=t,
                     tags=dict(
-                        station_id=self.station_id
+                        station_id=self.station_id,
+                        type=self.slugify(k),
                     ),
                     fields=dict(
                         value=value

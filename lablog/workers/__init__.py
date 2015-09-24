@@ -23,7 +23,7 @@ def monitor_ups():
         "/app/data/mib/stdupsv1.mib"
     ]
     ups = UPS(mibs, config.UPS_SNMP_IP, "NARpublic", 1)
-    ups.go(INFLUX, MQ, messages.Exchanges.sensors, routing_key="ups.{measurement}")
+    ups.go(INFLUX, MQ, messages.Exchanges.sensors)
     MQ.release()
 
 @app.task
@@ -31,7 +31,7 @@ def get_weather_data():
     api_key = config.WUNDERGROUND_KEY
     station_id = config.WUNDERGROUND_STATION_ID
     w = Wunderground(api_key, station_id)
-    w.go(INFLUX, MQ, messages.Exchanges.sensors, routing_key="weather.{measurement}")
+    w.go(INFLUX, MQ, messages.Exchanges.sensors)
     MQ.release()
 
 @app.task
@@ -40,5 +40,5 @@ def get_smartmeter_data():
     un = config.SMART_METER_UN
     pw = config.SMART_METER_PW
     eg = EnergyGateway(macid, un, pw, "http://energy.entropealabs.mine.nu")
-    eg.go(INFLUX, MQ, messages.Exchanges.sensors, routing_key="energy.{measurement}")
+    eg.go(INFLUX, MQ, messages.Exchanges.sensors)
     MQ.release()

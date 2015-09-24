@@ -47,19 +47,20 @@ influxdb:
         - influxdata
 
 rabbitdata:
-    image: rabbitmq
+    image: rabbitmq:3-management
     command: "true"
     volumes:
         - /data/log
         - /data/mnesia
 
 rabbitmq:
-    image: rabbitmq
+    image: rabbitmq:3-management
     hostname: rabbitmq
     log_driver: "syslog"
+    expose:
+        - "5672:5672"
     ports:
-        - 5672
-        - 15672
+        - "15672:15672"
     volumes_from:
         - rabbitdata
 
@@ -106,7 +107,7 @@ workers:
     extends:
         service: basepython
     command: celery -A lablog.workers beat --loglevel=info
-    log_driver: "syslog"
+    #log_driver: "syslog"
     links:
         - mongodb:mongo
         - elasticsearch:es

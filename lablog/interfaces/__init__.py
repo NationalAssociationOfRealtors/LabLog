@@ -20,14 +20,14 @@ class Interface(object):
     def log(self, data, db):
         db.write_points(data)
 
-    def queue(self, data, mq, exchange, routing_key):
+    def queue(self, data, mq, exchange):
         for i in data:
-            key = routing_key.format(**i)
+            key = "{}.{}".format(i['measurement'], i['tags']['type'])
             messages.publish(mq, i, exchange, routing_key=key)
 
-    def go(self, db, mq, exchange, routing_key, data=None):
+    def go(self, db, mq, exchange, data=None):
         raw_data = self.data(data=data)
         parsed_data = self.parse(raw_data)
         self.log(parsed_data, db)
-        self.queue(parsed_data, mq, exchange, routing_key)
+        self.queue(parsed_data, mq, exchange)
         return parsed_data
