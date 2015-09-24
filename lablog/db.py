@@ -98,9 +98,8 @@ def create_shards(INFLUX):
                 default=policy['default']
             )
         for cq in influx.QUERIES:
-            for measurement in influx.MEASUREMENTS:
-                query = cq['query'].format(**{"database":config.INFLUX_DATABASE, "measurement":measurement})
-                q = "CREATE CONTINUOUS QUERY \"{}\" ON {} BEGIN {} END".format(cq['name'].format(**{'measurement':measurement}), config.INFLUX_DATABASE, query)
-                INFLUX.query(q)
+            query = cq['query'].format(**{"database":config.INFLUX_DATABASE})
+            q = "CREATE CONTINUOUS QUERY \"{}\" ON {} BEGIN {} END".format(cq['name'], config.INFLUX_DATABASE, query)
+            INFLUX.query(q)
     except Exception as e:
         logging.exception(e)

@@ -23,10 +23,9 @@ class Node(Interface):
         points = []
         for k,v in data.iteritems():
             points.append(dict(
-                measurement="node",
+                measurement="node.{}".format(k),
                 tags=dict(
                     node=str(self.id),
-                    type=k,
                 ),
                 time=datetime.utcnow(),
                 fields=dict(

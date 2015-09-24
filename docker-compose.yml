@@ -45,6 +45,8 @@ influxdb:
         - "8083:8083"
     volumes_from:
         - influxdata
+    environment:
+        INFLUXDB_VERSION: 0.9.4.1
 
 rabbitdata:
     image: rabbitmq:3-management
@@ -96,7 +98,7 @@ scheduler:
     extends:
         service: basepython
     command: celery -A lablog.workers worker --loglevel=info
-    log_driver: "syslog"
+    #log_driver: "syslog"
     links:
         - mongodb:mongo
         - elasticsearch:es
@@ -107,7 +109,7 @@ workers:
     extends:
         service: basepython
     command: celery -A lablog.workers beat --loglevel=info
-    #log_driver: "syslog"
+    log_driver: "syslog"
     links:
         - mongodb:mongo
         - elasticsearch:es

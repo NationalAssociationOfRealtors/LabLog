@@ -1,9 +1,3 @@
-MEASUREMENTS = [
-    "weather",
-    "energy",
-    "node",
-]
-
 POLICIES = [
 {
     "name": "\"realtime\"",
@@ -27,11 +21,11 @@ POLICIES = [
 
 QUERIES = [
     {
-        "name":"15_minute_rollup.{measurement}",
-        "query":"SELECT mean(\"value\") as value INTO \"{database}\".\"15minute\".\"{measurement}\" FROM \"{database}\".\"default\".\"{measurement}\" GROUP BY time(15m), *"
+        "name":"15_minute_rollup",
+        "query":"SELECT mean(\"value\") as value INTO \"{database}\".\"15minute\".:measurement FROM \"{database}\".\"realtime\"./^[a-z]+.*/ GROUP BY time(15m), *"
     },
     {
-        "name":"1_hour_rollup.{measurement}",
-        "query":"SELECT mean(\"value\") as value INTO \"{database}\".\"1hour\".\"{measurement}\" FROM \"{database}\".\"default\".\"{measurement}\" GROUP BY time(1h), *"
+        "name":"1_hour_rollup",
+        "query":"SELECT mean(\"value\") as value INTO \"{database}\".\"1hour\".:measurement FROM \"{database}\".\"realtime\"./^[a-z]+.*/ GROUP BY time(1h), *"
     }
 ]

@@ -33,11 +33,10 @@ class EnergyGateway(Interface):
         d['amps'] = d['power']/240
         now = datetime.utcnow()
         points = [dict(
-            measurement="energy",
+            measurement="energy.smartmeter.{}".format(k),
             time=now,
             tags=dict(
                 macid=self.macid,
-                type="smartmeter.{}".format(k),
             ),
             fields=dict(
                 value=v

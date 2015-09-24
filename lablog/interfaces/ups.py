@@ -32,12 +32,11 @@ class UPS(SNMP):
     def point(self, data, key, val, line=None):
         t = datetime.utcnow()
         d = dict(
-            measurement="energy",
+            measurement="energy.ups.{}".format(key),
             time=t,
             tags=dict(
                 model=data['model'],
                 manufacturer=data['manufacturer'],
-                type="ups.{}".format(key),
             ),
             fields=dict(
                 value=val

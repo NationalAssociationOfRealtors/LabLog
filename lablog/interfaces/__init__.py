@@ -22,7 +22,7 @@ class Interface(object):
 
     def queue(self, data, mq, exchange):
         for i in data:
-            key = "{}.{}".format(i['measurement'], i['tags']['type'])
+            key = i['measurement']
             messages.publish(mq, i, exchange, routing_key=key)
 
     def go(self, db, mq, exchange, data=None):

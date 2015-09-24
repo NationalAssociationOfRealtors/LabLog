@@ -26,7 +26,7 @@ KEY = buffer(SKEY)
 @node.route("/nodes", methods=["GET"])
 @oauth.require_oauth('analytics')
 def get_nodes():
-    res = g.INFLUX.query(query="SHOW SERIES FROM light")
+    res = g.INFLUX.query(query="SHOW SERIES FROM \"node.light\"")
     nodes = []
     for v in res.get_points():
         nodes.append(v.get('node'))
