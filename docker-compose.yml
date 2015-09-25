@@ -98,7 +98,7 @@ scheduler:
     extends:
         service: basepython
     command: celery -A lablog.workers worker --loglevel=info
-    #log_driver: "syslog"
+    log_driver: "syslog"
     links:
         - mongodb:mongo
         - elasticsearch:es
