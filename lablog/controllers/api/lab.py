@@ -35,7 +35,7 @@ def team():
 @lab.route("/ups", methods=["GET"])
 @oauth.require_oauth('analytics')
 def ups():
-    q = "SELECT mean(\"value\") as value FROM \"lablog\".\"15minute\".\"energy.ups.output_power\" WHERE time > now() - 2d GROUP BY \"line\" fill(previous)"
+    q = "SELECT value FROM \"lablog\".\"15minute\".\"energy.ups.output_power\" WHERE time > now() - 2d GROUP BY \"line\""
     res = g.INFLUX.query(q)
     ret = {}
     for s in res.raw['series']:
@@ -49,7 +49,7 @@ def ups():
 @lab.route("/energy", methods=["GET"])
 @oauth.require_oauth('analytics')
 def energy():
-    q = "SELECT mean(\"value\") as value FROM \"lablog\".\"15minute\".\"energy.smartmeter.power\" WHERE time > now() - 2d fill(previous)"
+    q = "SELECT value FROM \"lablog\".\"15minute\".\"energy.smartmeter.power\" WHERE time > now() - 2d"
     res = g.INFLUX.query(q)
     ret = {}
     for k, v in res.items():
@@ -62,7 +62,7 @@ def energy():
 @lab.route("/weather", methods=["GET"])
 @oauth.require_oauth('analytics')
 def weather():
-    q = "SELECT mean(\"value\") as value FROM \"lablog\".\"15minute\".\"weather.temp-c, relative-humidity\" WHERE time > now() - 2d fill(previous)"
+    q = "SELECT value FROM \"lablog\".\"15minute\".\"weather.temp-c\",\"lablog\".\"15minute\".\"weather.relative-humidity\" WHERE time > now() - 2d"
     res = g.INFLUX.query(q)
     ret = {}
     for k, v in res.items():

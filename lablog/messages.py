@@ -6,13 +6,15 @@ from lablog import db
 import logging
 
 class Exchanges(object):
-    sensors = Exchange('sensors', type='topic')
+    node = Exchange('node', type='topic')
+    energy = Exchange('energy', type='topic')
+    weather = Exchange('weather', type='topic')
+    presence = Exchange('presence', type='direct')
+    tasks = Exchange('tasks', type='direct')
 
 class Queues(object):
-    node = Queue('node', Exchanges.sensors, routing_key="node.*")
-    ups = Queue('ups', Exchanges.sensors, routing_key="ups.*")
-    weather = Queue('weather', Exchanges.sensors, routing_key="weather.*")
-    energy = Queue('energy', Exchanges.sensors, routing_key="energy.*")
+    presence = Queue('presence', Exchanges.presence, routing_key='presence', auto_delete=True)
+
 
 class RequeueException(Exception): pass
 class RejectException(Exception): pass
@@ -25,7 +27,7 @@ class Consumer(ConsumerMixin):
         self.queues = queues
 
     def get_consumers(self, Consumer, channel):
-        return [Consumer(self.queues, accept=['json', 'pickle'], callbacks=[self.process_message])]
+        return [Consumer(self.queues, accept=['pickle'], callbacks=[self.process_message])]
 
     def process_message(self, body, msg):
         try:

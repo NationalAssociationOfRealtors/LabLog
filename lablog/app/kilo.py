@@ -4,7 +4,7 @@ from lablog import config
 from lablog import db
 from lablog.util.jsontools import JavascriptEncoder
 from lablog.models.client import Token, Admin
-from lablog.hooks import post_slack
+from lablog.interfaces.presence import Presence
 from lablog import messages
 from uuid import uuid4
 from datetime import datetime
@@ -55,6 +55,35 @@ class Kilo(WebSocketApplication):
         self.sendto({'event':'node', '_to':current.address, 'data':json.dumps(body, cls=JavascriptEncoder)})
         return True
 
+    def presence_stream(self, body, msg):
+        current = self.ws.handler.active_client
+        a = Admin(id=body['tags']['user_id'])
+        a.in_office = body['fields']['value']
+        user = a.json()
+        user['times'] = a.get_punchcard(self.INFLUX)
+        body['user'] = user
+        self.sendto({'event':'presence', '_to':current.address, 'data':body})
+        return True
+
+    def init_consumers(self):
+        current = self.ws.handler.active_client
+        node_q = Queue(
+            name="node-{}-{}".format(current.address[0], current.address[1]),
+            exchange=messages.Exchanges.node,
+            routing_key="node.*",
+            exclusive=True,
+        )
+        node_consumer = messages.Consumer(self.MQ, [node_q], self.node_stream)
+        self.node_greenlet = gevent.spawn(node_consumer.run)
+        presence_q = Queue(
+            name="presence-{}-{}".format(current.address[0], current.address[1]),
+            exchange=messages.Exchanges.presence,
+            routing_key="presence",
+            exclusive=True,
+        )
+        presence_consumer = messages.Consumer(self.MQ, [presence_q], self.presence_stream)
+        self.presence_greenlet = gevent.spawn(presence_consumer.run)
+
     def on_open(self):
         try:
             token = verify_message(self.ws.handler.active_client.ws, ['inoffice', 'analytics'])
@@ -66,14 +95,8 @@ class Kilo(WebSocketApplication):
         self.MQ = db.init_mq()
         current = self.ws.handler.active_client
         current.token = token
-        q = Queue(
-            name="{}".format(current.address),
-            exchange=messages.Exchanges.sensors,
-            routing_key="node.*",
-            exclusive=True,
-        )
-        consumer = messages.Consumer(self.MQ, [q], self.node_stream)
-        self.greenlet = gevent.spawn(consumer.run)
+        self.init_consumers()
+
 
     def on_message(self, message):
         if not message: return
@@ -84,7 +107,7 @@ class Kilo(WebSocketApplication):
             ev = ms['event']
             ms['_to'] = tuple(ms.get('_to', {}))
             actions = {
-                'inoffice': self.inoffice,
+                'presence': self.presence,
                 'beacons': self.beacons,
                 'ping': self.ping,
             }
@@ -103,34 +126,16 @@ class Kilo(WebSocketApplication):
         #logging.info(data['data']['result']['beacons'])
         pass
 
-    def inoffice(self, data):
-        logging.info("In-Office: {}".format(data['data']['result']))
-        user = data['token'].user
-        user.in_office = data['data']['result']
-        point = [dict(
-            measurement="inoffice",
-            tags=dict(
-                user_id=str(user._id),
-                client_id=str(data['token'].client._id)
-            ),
-            time=datetime.utcnow(),
-            fields=dict(
-                value=data['data']['result']
-            )
-        )]
-        self.INFLUX.write_points(point)
-        user.save();
-        u = user.json()
-        u['times'] = user.get_punchcard(self.INFLUX)
-        data['data']['user'] = u
-        self.broadcast(data)
-        disp = "arrived" if user.in_office else "departed"
-        post_slack.delay(message={"text":"{} has {}".format(user.name, disp)})
+    def presence(self, data):
+        logging.info("Presence change detected: {}".format(data['data']['result']))
+        presence = Presence()
+        presence.go(self.INFLUX, self.MQ, messages.Exchanges.presence, data=data)
 
     def on_close(self, reason):
         MONGO.close()
         self.MQ.release()
-        gevent.kill(self.greenlet)
+        gevent.kill(self.node_greenlet)
+        gevent.kill(self.presence_greenlet)
         current = self.ws.handler.active_client
         logging.info("Client Left: {}".format(current.address))
 

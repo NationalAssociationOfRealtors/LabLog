@@ -6,6 +6,8 @@ LOG_LEVEL = logging.INFO
 logging.basicConfig(level=LOG_LEVEL)
 DEBUG = True
 
+BROKER_URL = "amqp://guest:guest@mq"
+
 API_VERSION = "v1.0"
 
 HASH_ROUNDS = 3998

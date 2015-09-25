@@ -94,7 +94,7 @@ api:
         - influxdb:influx
         - rabbitmq:mq
 
-scheduler:
+workers:
     extends:
         service: basepython
     command: celery -A lablog.workers worker --loglevel=info
@@ -104,8 +104,10 @@ scheduler:
         - elasticsearch:es
         - influxdb:influx
         - rabbitmq:mq
+    environment:
+        C_FORCE_ROOT: 1
 
-workers:
+scheduler:
     extends:
         service: basepython
     command: celery -A lablog.workers beat --loglevel=info
@@ -115,6 +117,8 @@ workers:
         - elasticsearch:es
         - influxdb:influx
         - rabbitmq:mq
+    environment:
+        C_FORCE_ROOT: 1
 
 nginx:
     image: nginx:1.7

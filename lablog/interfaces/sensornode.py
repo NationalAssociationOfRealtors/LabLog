@@ -22,14 +22,15 @@ class Node(Interface):
     def parse_data(self, data):
         points = []
         for k,v in data.iteritems():
-            points.append(dict(
-                measurement="node.{}".format(k),
-                tags=dict(
-                    node=str(self.id),
-                ),
-                time=datetime.utcnow(),
-                fields=dict(
-                    value=v,
-                )
-            ))
+            if v:
+                points.append(dict(
+                    measurement="node.{}".format(k),
+                    tags=dict(
+                        node=str(self.id),
+                    ),
+                    time=datetime.utcnow(),
+                    fields=dict(
+                        value=v,
+                    )
+                ))
         return points
