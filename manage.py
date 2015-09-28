@@ -22,6 +22,7 @@ class InitApplication(Command):
     def run(self):
         app.configure_dbs()
         from lablog.triggers.node import CO2
+        from lablog.triggers.lab import Presence
         try:
             c = CO2()
             c.name = 'notify slack c02'#unique
@@ -29,8 +30,13 @@ class InitApplication(Command):
             c.save()
             logging.info(c.key)
             logging.info(c.name)
-        except Exception as e:
-            logging.exception(e)
+        except: pass
+        try:
+            c = Presence()
+            c.name = 'notify slack presence'#unique
+            c.key = 'presence'
+            c.save()
+        except: pass
 
 
 manager.add_command('command', RunWorker())

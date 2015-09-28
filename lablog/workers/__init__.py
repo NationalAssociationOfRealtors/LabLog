@@ -18,33 +18,6 @@ MQ = db.init_mq()
 app = Celery(__name__)
 app.config_from_object('lablog.celeryconfig')
 
-class PresenceConsumer(bootsteps.ConsumerStep):
-
-    def handle_presence(self, body, msg):
-        try:
-            logging.info("Received Presence Message: {}".format(body))
-            user = Admin(id=body['tags']['user_id'])
-            user.in_office = body['fields']['value']
-            user.save();
-            disp = "arrived" if user.in_office else "departed"
-            post_slack.delay(message={"text":"{} has {}".format(user.name, disp)})
-        except Exception as e:
-            logging.exception(e)
-        finally:
-            msg.ack()
-
-    def get_consumers(self, channel):
-        return [
-            Consumer(
-                channel,
-                queues=[messages.Queues.presence],
-                callbacks=[self.handle_presence],
-                accept=['pickle']
-            )
-        ]
-
-app.steps['consumer'].add(PresenceConsumer)
-
 class TriggerConsumer(bootsteps.ConsumerStep):
 
     def __init__(self, *args, **kwargs):
