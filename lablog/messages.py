@@ -11,9 +11,13 @@ class Exchanges(object):
     weather = Exchange('weather', type='topic')
     presence = Exchange('presence', type='direct')
     tasks = Exchange('tasks', type='direct')
+    everything = Exchange('everything', type='fanout')
+
 
 class Queues(object):
-    presence = Queue('presence', Exchanges.presence, routing_key='presence', auto_delete=True)
+    presence = Queue('presence', Exchanges.presence, routing_key='presence')
+    tasks = Queue('tasks', Exchanges.tasks, routing_key='tasks')
+    everything = Queue('everything', Exchanges.everything)
 
 
 class RequeueException(Exception): pass
@@ -52,4 +56,11 @@ def publish(connection, payload, exchange, routing_key):
              exchange=exchange,
              declare=[exchange],
              routing_key=routing_key
+        )
+        producer.publish(
+            payload,
+            serializer='pickle',
+            compression='bzip2',
+            exchange=Exchanges.everything,
+            declare=[Exchanges.everything],
         )

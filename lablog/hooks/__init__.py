@@ -11,3 +11,4 @@ app.config_from_object('lablog.celeryconfig')
 def post_slack(message):
     res = requests.post(config.SLACK_WEBHOOK, data=json.dumps(message))
     logging.info("Posted Slack: {}".format(res))
+    logging.info(res.text)

@@ -9,16 +9,11 @@ from lablog.interfaces.wunderground import Wunderground
 from lablog.interfaces.eagle import EnergyGateway
 from lablog.interfaces.ups import UPS
 from lablog.hooks import post_slack
-import humongolus
+from lablog.triggers import Trigger
 import logging
 
-MONGO = db.init_mongodb()
 INFLUX = db.init_influxdb()
 MQ = db.init_mq()
-LOG_LEVEL = logging.INFO
-
-logging.basicConfig(level=LOG_LEVEL)
-humongolus.settings(logging, MONGO)
 
 app = Celery(__name__)
 app.config_from_object('lablog.celeryconfig')
@@ -49,6 +44,38 @@ class PresenceConsumer(bootsteps.ConsumerStep):
         ]
 
 app.steps['consumer'].add(PresenceConsumer)
+
+class TriggerConsumer(bootsteps.ConsumerStep):
+
+    def __init__(self, *args, **kwargs):
+        self.triggers = [a for a in Trigger.find()]
+        super(TriggerConsumer, self).__init__(*args, **kwargs)
+
+    def handle_trigger(self, body, msg):
+        try:
+            logging.info("Received Trigger Message: {}".format(body))
+            logging.info("Checking for qualified triggers")
+            for t in self.triggers:
+                if t.key == body['measurement']:
+                    logging.info("Found trigger.")
+                    val = t._run(body)
+                    logging.info("Trigger Result: {}".format(val))
+        except Exception as e:
+            logging.exception(e)
+        finally:
+            msg.ack()
+
+    def get_consumers(self, channel):
+        return [
+            Consumer(
+                channel,
+                queues=[messages.Queues.everything],
+                callbacks=[self.handle_trigger],
+                accept=['pickle']
+            )
+        ]
+
+app.steps['consumer'].add(TriggerConsumer)
 
 @app.task
 def monitor_ups():
