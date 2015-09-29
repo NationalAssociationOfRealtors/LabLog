@@ -48,4 +48,8 @@ CELERYBEAT_SCHEDULE = {
         'task': 'lablog.workers.get_smartmeter_data',
         'schedule': datetime.timedelta(seconds=30),
     },
+    'monitor_neurio_meter': {
+        'task': 'lablog.workers.get_neurio_data',
+        'schedule': datetime.timedelta(seconds=30),
+    },
 }

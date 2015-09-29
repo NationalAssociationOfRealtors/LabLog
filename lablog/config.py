@@ -76,6 +76,7 @@ LDAP_USERNAME = os.environ.get('LDAP_USERNAME')
 LDAP_PASSWORD = os.environ.get('LDAP_PASSWORD')
 LDAP_USER_OBJECT_FILTER = os.environ.get('LDAP_USER_OBJECT_FILTER')
 
+NEURIO_URL = os.environ.get("NEURIO_URL")
 
 SLACK_WEBHOOK = os.environ.get("SLACK_WEBHOOK")
 

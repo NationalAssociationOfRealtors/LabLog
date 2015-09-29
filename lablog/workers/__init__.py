@@ -7,6 +7,7 @@ from lablog import messages
 from lablog.models.client import Admin
 from lablog.interfaces.wunderground import Wunderground
 from lablog.interfaces.eagle import EnergyGateway
+from lablog.interfaces.neurio import HomeEnergyMonitor
 from lablog.interfaces.ups import UPS
 from lablog.hooks import post_slack
 from lablog.triggers import Trigger
@@ -78,4 +79,13 @@ def get_smartmeter_data():
     pw = config.SMART_METER_PW
     eg = EnergyGateway(macid, un, pw, "http://energy.entropealabs.mine.nu")
     eg.go(INFLUX, MQ, messages.Exchanges.energy)
+    MQ.release()
+
+@app.task
+def get_neurio_data():
+    url = config.NEURIO_URL
+    un = None
+    pw = None
+    hem = HomeEnergyMonitor(url, un, pw)
+    hem.go(INFLUX, MQ, messages.Exchanges.energy)
     MQ.release()
