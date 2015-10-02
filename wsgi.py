@@ -11,6 +11,7 @@ from lablog.controllers.auth.facebook import facebook
 from lablog.controllers.healthcheck import hc
 from lablog.controllers.api.lab import lab
 from lablog.controllers.api.node import node
+from lablog.controllers.reports import reports
 from lablog.app.kilo import Kilo
 import logging
 logging.basicConfig(level=config.LOG_LEVEL)
@@ -32,6 +33,7 @@ def create_app():
     _app.register_blueprint(hc)
     _app.register_blueprint(lab)
     _app.register_blueprint(node)
+    _app.register_blueprint(reports)
     def app(env, start_response):
         #healthcheck(_app, env)
         return _app(env, start_response)

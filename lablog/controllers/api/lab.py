@@ -4,8 +4,9 @@ from lablog.app import App
 from lablog import config
 from lablog.util.jsontools import jsonify
 from flask_oauthlib.provider import OAuth2Provider
-import logging
+from lablog import dataflow
 from lablog.controllers.auth import oauth
+import logging
 
 lab = Blueprint(
     'lab',

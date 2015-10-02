@@ -70,3 +70,11 @@ triggers = [
     "Presence",
     "CO2",
 ]
+
+
+exchanges = [
+    energy,
+    presence,
+    air_quality,
+    weather
+]

@@ -29,5 +29,6 @@ class CreateClient(MethodView):
         cl.save()
         return render_template("index.html", client=Client)
 
+
 dashboard.add_url_rule("/", view_func=Index.as_view('index'))
 dashboard.add_url_rule("/client/create/<name>", view_func=CreateClient.as_view('create_client'))
