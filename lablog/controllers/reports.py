@@ -32,38 +32,91 @@ class DataFlow(MethodView):
                     'id':"{}_{}".format(
                         exchange['name'].lower().replace(" ", "_"),
                         i.lower().replace(" ", "_")
-                    )
+                    ),
+                    'type':'interface'
                 })
             data = []
             for d in exchange['data']:
                 data.append({
-                    'name':i,
+                    'name':d,
                     'id':"{}_{}".format(
                         exchange['name'].lower().replace(" ", "_"),
-                        i.lower().replace(" ", "_")
-                    )
+                        d.lower().replace(" ", "_")
+                    ),
+                    'type':'data'
                 })
-            for i,n in enumerate(nodes):
+            for ni,n in enumerate(nodes):
                 for ii,d in enumerate(data):
                     links.append({
-                        'source':i,
-                        'target':len(nodes)+ii,
-                        'value':1
+                        'source':len(fnodes)+ni,
+                        'target':len(fnodes)+len(nodes)+ii,
+                        'value':.01
                     })
             fnodes+=nodes
             fnodes+=data
             for ii, d in enumerate(data):
                 links.append({
-                    'source':len(nodes)+ii,
-                    'target':len(fnodes)+e,
-                    'value':1,
+                    'source':(len(fnodes)-len(data))+ii,
+                    'target':len(fnodes),
+                    'value':.01,
                 })
             fnodes.append({
                 'name':exchange['name'],
-                'id': exchange['name'].lower().replace(" ", "_")
+                'id': exchange['name'].lower().replace(" ", "_"),
+                'type':'exchange',
             })
 
-            return jsonify({'nodes':fnodes, 'links':links})
+        fnodes.append({
+            'name':'Everything',
+            'id': 'everything',
+            'type': 'exchange_everything',
+        })
+
+        ev = len(fnodes)-1
+        for i, n in enumerate(fnodes):
+            if n['type'] == 'data':
+                links.append({
+                    'source':i,
+                    'target':len(fnodes)-1,
+                    'value':.01,
+                })
+
+        links.append({
+            'source':ev,
+            'target': len(fnodes),
+            'value': .01,
+        })
+        fnodes.append({
+            'name':"Triggers",
+            'id':"triggers",
+            'type':'trigger',
+        })
+
+        links.append({
+            'source':ev,
+            'target': len(fnodes),
+            'value': .01,
+        })
+        fnodes.append({
+            'name':"Federation",
+            'id':"federation",
+            'type':'deferation',
+        })
+
+        fnodes.append({
+            'name': 'Clients',
+            'id': 'clients',
+            'type': 'clients',
+        })
+        for i, n in enumerate(fnodes):
+            if n['type'] == 'exchange':
+                links.append({
+                    'source':i,
+                    'target':len(fnodes)-1,
+                    'value':.01,
+                })
+
+        return jsonify({'nodes':fnodes, 'links':links})
 
 reports.add_url_rule("/dataflow", view_func=DataFlowView.as_view('dataflow'))
 reports.add_url_rule("/dataflow/data", view_func=DataFlow.as_view('dataflow_data'))
