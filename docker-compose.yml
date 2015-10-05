@@ -30,6 +30,17 @@ elasticsearch:
     volumes_from:
         - elasticdata
 
+grafana:
+    image: grafana/grafana
+    hostname: grafana
+    log_driver: "syslog"
+    expose:
+        - "3000:3000"
+    links:
+        - influxdb:influx
+    environment:
+        GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
+
 influxdata:
     image: tutum/influxdb
     command: "true"
@@ -123,9 +134,10 @@ scheduler:
 
 nginx:
     image: nginx:1.7
-    log_driver: "syslog"
+    #log_driver: "syslog"
     links:
         - api:backend
+        - grafana:graf
     volumes:
         - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
         - ./config/nginx:/etc/nginx/ssl
