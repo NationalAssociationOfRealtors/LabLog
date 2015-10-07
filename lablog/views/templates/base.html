@@ -17,7 +17,7 @@
         <script href="/static/js/app.js"></script>
         {% block head %}{% endblock %}
     </head>
-    <body>
+    <body class="{% block body_class %}{% endblock %}">
         {% block container %}
         <div class='container'>
             {% block menu %}

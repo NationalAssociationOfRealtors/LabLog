@@ -57,16 +57,7 @@ MONGO_PORT = 27017
 FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID")
 FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET")
 
-UPS_SNMP_IP = "172.16.14.36"
-
 SKEY = os.environ.get("SKEY")
-
-WUNDERGROUND_KEY = os.environ.get("WUNDERGROUND_KEY")
-WUNDERGROUND_STATION_ID = os.environ.get("WUNDERGROUND_STATION_ID")
-
-SMART_METER_MACID = os.environ.get("SMART_METER_MACID")
-SMART_METER_UN = os.environ.get("SMART_METER_UN")
-SMART_METER_PW = os.environ.get("SMART_METER_PW")
 
 LDAP_LOGIN = True
 LDAP_HOST = os.environ.get('LDAP_HOST')
@@ -76,8 +67,4 @@ LDAP_USERNAME = os.environ.get('LDAP_USERNAME')
 LDAP_PASSWORD = os.environ.get('LDAP_PASSWORD')
 LDAP_USER_OBJECT_FILTER = os.environ.get('LDAP_USER_OBJECT_FILTER')
 
-NEURIO_URL = os.environ.get("NEURIO_URL")
-
 SLACK_WEBHOOK = os.environ.get("SLACK_WEBHOOK")
-
-logging.info("WEB HOOK: {}".format(SLACK_WEBHOOK))

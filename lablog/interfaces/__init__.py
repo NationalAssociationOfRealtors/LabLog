@@ -1,10 +1,14 @@
+import humongolus as orm
 from lablog import messages
 import logging
 
 class NotImplemented(Exception): pass
 class NoData(Exception): pass
 
-class Interface(object):
+class Interface(orm.Document):
+    _db = 'lablog'
+    _collection = 'interfaces'
+    exchange = None
 
     def data(self, data=None):
         raise NotImplemented('data method should be overridden in subclass and return data')
@@ -25,9 +29,9 @@ class Interface(object):
             key = i['measurement']
             messages.publish(mq, i, exchange, routing_key=key)
 
-    def go(self, db, mq, exchange, data=None):
+    def go(self, db, mq, data=None):
         raw_data = self.data(data=data)
         parsed_data = self.parse(raw_data)
         self.log(parsed_data, db)
-        self.queue(parsed_data, mq, exchange)
+        self.queue(parsed_data, mq, self.exchange)
         return parsed_data

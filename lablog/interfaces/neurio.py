@@ -1,19 +1,22 @@
 from lablog.interfaces import Interface
+import humongolus.field as field
 from xml.etree import ElementTree as ET
 from datetime import datetime
+from lablog import messages
 import requests
 import logging
 
 class HomeEnergyMonitor(Interface):
+    exchange = messages.Exchanges.energy
 
-    def __init__(self, url, un, pw):
-        self.url = "{}/both_tables.html".format(url)
-        self.un = un
-        self.pw = pw
+    url = field.Char()
+    un = field.Char()
+    pw = field.Char()
 
     def data(self, data=None):
+        url = "{}/both_tables.html".format(self.url)
         auth = (self.un, self.pw) if self.un else None
-        res = requests.get(self.url, auth=auth)
+        res = requests.get(url, auth=auth, timeout=5)
         return res.text
 
     def parse_data(self, data):
@@ -46,6 +49,7 @@ class HomeEnergyMonitor(Interface):
             time=now,
             tags=dict(
                 macid=self.url,
+                interface=str(self._id),
             ),
             fields=dict(
                 value=v

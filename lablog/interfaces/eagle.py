@@ -1,8 +1,12 @@
 from lablog.interfaces import Interface
+import humongolus.field as field
+from lablog import messages
 import requests
 from datetime import datetime
 
 class EnergyGateway(Interface):
+    exchange = messages.Exchanges.energy
+
     CMD = "<LocalCommand>\
             <Name>get_usage_data</Name>\
             <MacId>{macid}</MacId>\
@@ -13,15 +17,16 @@ class EnergyGateway(Interface):
         </LocalCommand>\
         :"
 
-    def __init__(self, macid, un, pw, address):
-        self.macid = macid
-        self.cmd = self.CMD.format(**{'macid':macid})
-        self.url = "{}/cgi-bin/cgi_manager".format(address)
-        self.un = un
-        self.pw = pw
+
+    macid = field.Char()
+    un = field.Char()
+    pw = field.Char()
+    url = field.Char()
 
     def data(self, data=None):
-        res = requests.post(self.url, auth=(self.un, self.pw), data=self.cmd)
+        cmd = self.CMD.format(**{'macid':self.macid})
+        url = "{}/cgi-bin/cgi_manager".format(self.url)
+        res = requests.post(url, auth=(self.un, self.pw), data=cmd)
         return res.json()
 
     def parse_data(self, data):
@@ -37,6 +42,7 @@ class EnergyGateway(Interface):
             time=now,
             tags=dict(
                 macid=self.macid,
+                interface=str(self._id),
             ),
             fields=dict(
                 value=v

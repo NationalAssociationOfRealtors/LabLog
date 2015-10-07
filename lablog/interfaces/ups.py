@@ -1,9 +1,16 @@
+from snimpy.manager import Manager as M
+from snimpy.manager import load
 from lablog.interfaces.snmp import SNMP
+from lablog import messages
 from datetime import datetime
 
 class UPS(SNMP):
 
+    exhange = messages.Exchanges.energy
+
     def data(self, data=None):
+        for i in self.mibs.split(","): load(i)
+        self.manager = M(self.ip, self.community, self.version)
         m = self.manager
         d = {}
         d['model'] = str(self.manager.upsIdentModel).strip()
@@ -37,6 +44,7 @@ class UPS(SNMP):
             tags=dict(
                 model=data['model'],
                 manufacturer=data['manufacturer'],
+                interface=str(self._id),
             ),
             fields=dict(
                 value=val

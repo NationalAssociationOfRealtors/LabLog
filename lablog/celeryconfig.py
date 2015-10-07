@@ -36,20 +36,12 @@ CELERY_TIMEZONE = 'UTC'
 #CELERY_REDIRECT_STDOUTS_LEVEL = INFO
 
 CELERYBEAT_SCHEDULE = {
-    'monitor_ups': {
-        'task': 'lablog.workers.monitor_ups',
-        'schedule': datetime.timedelta(minutes=1),
-    },
-    'monitor_weather': {
-        'task': 'lablog.workers.get_weather_data',
-        'schedule': datetime.timedelta(minutes=4),
-    },
-    'monitor_smart_meter': {
-        'task': 'lablog.workers.get_smartmeter_data',
+    'monitor_locations_30sec': {
+        'task': 'lablog.workers.monitor_locations_30sec',
         'schedule': datetime.timedelta(seconds=30),
     },
-    'monitor_neurio_meter': {
-        'task': 'lablog.workers.get_neurio_data',
-        'schedule': datetime.timedelta(seconds=30),
+    'monitor_locations_5min': {
+        'task': 'lablog.workers.monitor_locations_5min',
+        'schedule': datetime.timedelta(minutes=5),
     },
 }

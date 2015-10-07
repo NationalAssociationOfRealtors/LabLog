@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Create Location{% endblock %}
+
+{% block body_class %}create_location{% endblock %}
+
+{% block content %}
+<h1>Create Location</h1>
+<form action="{{url_for('.create_location')}}" method="POST">
+<div class='form-group'>
+    <input type="hidden" name="location._id" value="{% if location._id %}{{location._id}}{% endif %}" />
+{% for k,field in location._fields.iteritems() %}
+    {% if k != 'geo' and k != 'interfaces' %}
+    <label for='location.{{k}}'>{{field._name}}</label>
+    <input type="text" class='form-control' name='location.{{k}}' value="{% if location._get(k)._value %}{{location._get(k)._value}}{% endif %}"/>
+    {% endif %}
+{% endfor %}
+</div>
+<h2>Interfaces</h2>
+{% for ki,interface in interfaces.iteritems() %}
+    <h3>{{ki}}</h3>
+    <div class='form-group'>
+    {% for k,field in interface._fields.iteritems() %}
+        <label for='location.{{k}}'>{{field._name}}</label>
+        <input type="text" class='form-control' name='{{ki}}.{{k}}' value="{% if interface._get(k)._value %}{{interface._get(k)._value}}{% endif %}"/>
+    {% endfor %}
+</div>
+{% endfor %}
+<button type="submit" class="btn btn-default">Submit</button>
+</form>
+{% endblock %}

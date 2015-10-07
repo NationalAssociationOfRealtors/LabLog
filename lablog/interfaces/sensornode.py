@@ -1,6 +1,8 @@
 from lablog.interfaces import Interface
+import humongolus.field as field
 from lablog.util import aes
 from lablog import config
+from lablog import messages
 from datetime import datetime
 import json
 
@@ -11,8 +13,9 @@ KEY = buffer(SKEY)
 
 class Node(Interface):
 
-    def __init__(self, id):
-        self.id = id
+    exchange = messages.Exchanges.node
+
+    id = field.Char()
 
     def data(self, data=None):
         j = aes.decrypt(data, KEY)
@@ -27,6 +30,7 @@ class Node(Interface):
                     measurement="node.{}".format(k),
                     tags=dict(
                         node=str(self.id),
+                        interface=str(self._id),
                     ),
                     time=datetime.utcnow(),
                     fields=dict(

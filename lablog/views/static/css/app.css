@@ -39,3 +39,19 @@ img.brand{
 span.permissions{
     color: blue;
 }
+
+body.create_location h1, body.create_location h2{
+    padding-bottom: 13px;
+    border-bottom: 4px solid #333333;
+}
+
+body.create_location h3{
+    background-color: #eeeeee;
+    padding: 7px;
+    padding-bottom: 7px;
+    border-bottom: 2px solid #999999;
+}
+
+a.create{
+    font-size: 12px;
+}

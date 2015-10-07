@@ -12,6 +12,12 @@
             <li>{{c.name}}: {{c._id}}</li>
         {% endfor %}
     </ul>
+    <h3>Locations - <a class='create' href="{{url_for('locations.create_location')}}">Create</a></h3>
+    <ul>
+        {% for c in location.find() %}
+            <li><a href="{{url_for('locations.location', id=c._id)}}">{{c.name}}</a></li>
+        {% endfor %}
+    </ul>
 </div>
 <script type="text/javascript">
     try{

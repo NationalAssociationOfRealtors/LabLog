@@ -2,6 +2,7 @@ from flask import Blueprint, Response, render_template, jsonify, url_for
 from flask.views import MethodView
 from passlib.hash import hex_sha1 as hex_sha1
 from lablog.models.client import Client
+from lablog.models.location import Location
 from lablog.app import App
 from lablog import config
 from flask_oauthlib.provider import OAuth2Provider
@@ -15,7 +16,7 @@ dashboard = Blueprint(
 
 class Index(MethodView):
     def get(self):
-        return render_template("index.html", client=Client)
+        return render_template("index.html", client=Client, location=Location)
 
 
 class CreateClient(MethodView):

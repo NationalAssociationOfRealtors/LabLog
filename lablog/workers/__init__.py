@@ -5,10 +5,7 @@ from lablog import config
 from lablog import db
 from lablog import messages
 from lablog.models.client import Admin
-from lablog.interfaces.wunderground import Wunderground
-from lablog.interfaces.eagle import EnergyGateway
-from lablog.interfaces.neurio import HomeEnergyMonitor
-from lablog.interfaces.ups import UPS
+from lablog.models.location import Location
 from lablog.hooks import post_slack
 from lablog.triggers import Trigger
 import logging
@@ -52,40 +49,26 @@ class TriggerConsumer(bootsteps.ConsumerStep):
 app.steps['consumer'].add(TriggerConsumer)
 
 @app.task
-def monitor_ups():
-    mibs = [
-        "/app/data/mib/RFC1155-SMI.txt",
-        "/app/data/mib/RFC-1215",
-        "/app/data/mib/RFC-1212-MIB.txt",
-        "/app/data/mib/RFC1213-MIB.txt",
-        "/app/data/mib/stdupsv1.mib"
-    ]
-    ups = UPS(mibs, config.UPS_SNMP_IP, "NARpublic", 1)
-    ups.go(INFLUX, MQ, messages.Exchanges.energy)
+def monitor_locations_30sec():
+    clss = ['UPS', 'HomeEnergyMonitor', 'EnergyGateway']
+    for loc in Location.find():
+        for i in loc.interfaces:
+            if i.interface.__class__.__name__  in clss:
+                logging.info("Running Interface: {}".format(i.interface.__class__.__name__))
+                try:
+                    i.interface.go(INFLUX, MQ)
+                except Exception as e:
+                    logging.exception(e)
+                logging.info("Finished Interface: {}".format(i.interface.__class__.__name__))
     MQ.release()
 
 @app.task
-def get_weather_data():
-    api_key = config.WUNDERGROUND_KEY
-    station_id = config.WUNDERGROUND_STATION_ID
-    w = Wunderground(api_key, station_id)
-    w.go(INFLUX, MQ, messages.Exchanges.weather)
-    MQ.release()
-
-@app.task
-def get_smartmeter_data():
-    macid = config.SMART_METER_MACID
-    un = config.SMART_METER_UN
-    pw = config.SMART_METER_PW
-    eg = EnergyGateway(macid, un, pw, "http://energy.entropealabs.mine.nu")
-    eg.go(INFLUX, MQ, messages.Exchanges.energy)
-    MQ.release()
-
-@app.task
-def get_neurio_data():
-    url = config.NEURIO_URL
-    un = None
-    pw = None
-    hem = HomeEnergyMonitor(url, un, pw)
-    hem.go(INFLUX, MQ, messages.Exchanges.energy)
+def monitor_locations_5min():
+    clss = ['Wunderground',]
+    for loc in Location.find():
+        for i in loc.interfaces:
+            if i.interface.__class__.__name__  in clss:
+                logging.info("Running Interface: {}".format(i.interface.__class__.__name__))
+                i.interface.go(INFLUX, MQ)
+                logging.info("Finished Interface: {}".format(i.interface.__class__.__name__))
     MQ.release()
