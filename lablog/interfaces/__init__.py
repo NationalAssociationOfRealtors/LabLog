@@ -38,17 +38,12 @@ class Interface(orm.Document):
         return parsed_data
 
     def get_values(self, db, _from):
-        historical = "SELECT value FROM \"lablog\".\"15minute\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
-        previous = "SELECT FIRST(value) FROM \"lablog\".\"15minute\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
+        historical = "SELECT value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
+        previous = "SELECT FIRST(value) FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
         current = "SELECT LAST(value) as value FROM \"lablog\".\"realtime\"./{}.*/ WHERE interface='{}'".format(self.measurement_key, self._id)
-        min_max_mean = "SELECT MIN(value) as min_value, MAX(value) as max_value, MEAN(value) as mean_value FROM \"lablog\".\"15minute\"./{}.*/ WHERE time > now - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
-        sql = "{};{};{};{}".format(historical, previous, current, min_max_mean)
-
-        #sql = "SELECT mean(value) as value FROM \"lablog\".\"realtime\"./{}.*/ WHERE time > now() - {} AND interface='{}' GROUP BY time(15m) fill(none)".format(self.measurement_key, _from, self._id)
-        logging.info(self.__class__.__name__)
-        logging.info(sql)
+        aggregate = "SELECT MIN(value) as min_value, MAX(value) as max_value, MEAN(value) as mean_value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
+        sql = "{};{};{};{}".format(historical, previous, current, aggregate)
         res = db.query(sql)
-        logging.info(res)
         ret = {}
         for t,g in res[0].items():
             ret[t[0]] = {'historical': [p for p in g]}
