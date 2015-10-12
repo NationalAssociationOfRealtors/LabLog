@@ -6,6 +6,7 @@ from datetime import datetime
 
 class EnergyGateway(Interface):
     exchange = messages.Exchanges.energy
+    measurement_key = "energy.smartmeter"
 
     CMD = "<LocalCommand>\
             <Name>get_usage_data</Name>\
@@ -38,7 +39,7 @@ class EnergyGateway(Interface):
         d['amps'] = d['power']/240
         now = datetime.utcnow()
         points = [dict(
-            measurement="energy.smartmeter.{}".format(k),
+            measurement="{}.{}".format(self.measurement_key, k),
             time=now,
             tags=dict(
                 macid=self.macid,

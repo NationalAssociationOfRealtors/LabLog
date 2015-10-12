@@ -6,6 +6,7 @@ import requests
 
 class Wunderground(Interface):
     exchange = messages.Exchanges.weather
+    measurement_key = "weather"
 
     station_id = field.Char()
     api_key = field.Char()
@@ -40,7 +41,7 @@ class Wunderground(Interface):
             if k in self.KEYS:
                 value = self.parse_value(v)
                 points.append(dict(
-                    measurement="weather.{}".format(self.slugify(k)),
+                    measurement="{}.{}".format(self.measurement_key, self.slugify(k)),
                     time=t,
                     tags=dict(
                         station_id=self.station_id,

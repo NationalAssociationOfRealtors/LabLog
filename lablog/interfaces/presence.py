@@ -7,8 +7,8 @@ import logging
 import json
 
 class Presence(Interface):
-
     exchange = messages.Exchanges.presence
+    measurement_key = "presence"
 
     def data(self, data=None):
         return data
@@ -16,7 +16,7 @@ class Presence(Interface):
     def parse_data(self, data):
         points = []
         points.append(dict(
-            measurement="presence",
+            measurement=self.measurement_key,
             tags=dict(
                 user_id=str(data['token'].user._id),
                 interface=str(self._id),

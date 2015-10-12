@@ -7,6 +7,7 @@ from datetime import datetime
 class UPS(SNMP):
 
     exhange = messages.Exchanges.energy
+    measurement_key = "energy.ups"
 
     def data(self, data=None):
         for i in self.mibs.split(","): load(i)
@@ -39,7 +40,7 @@ class UPS(SNMP):
     def point(self, data, key, val, line=None):
         t = datetime.utcnow()
         d = dict(
-            measurement="energy.ups.{}".format(key),
+            measurement="{}.{}".format(self.measurement_key, key),
             time=t,
             tags=dict(
                 model=data['model'],

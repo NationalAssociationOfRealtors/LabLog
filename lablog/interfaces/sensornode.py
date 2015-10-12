@@ -12,7 +12,7 @@ SKEY = bytearray(k)
 KEY = buffer(SKEY)
 
 class Node(Interface):
-
+    measurement_key = "node"
     exchange = messages.Exchanges.node
 
     id = field.Char()
@@ -27,7 +27,7 @@ class Node(Interface):
         for k,v in data.iteritems():
             if v:
                 points.append(dict(
-                    measurement="node.{}".format(k),
+                    measurement="{}.{}".format(self.measurement_key, k),
                     tags=dict(
                         node=str(self.id),
                         interface=str(self._id),

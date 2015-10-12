@@ -8,6 +8,7 @@ import logging
 
 class HomeEnergyMonitor(Interface):
     exchange = messages.Exchanges.energy
+    measurement_key = "energy.smartmeter"
 
     url = field.Char()
     un = field.Char()
@@ -45,7 +46,7 @@ class HomeEnergyMonitor(Interface):
 
         now = datetime.utcnow()
         points = [dict(
-            measurement="energy.smartmeter.{}".format(k),
+            measurement="{}.{}".format(self.measurement_key, k),
             time=now,
             tags=dict(
                 macid=self.url,

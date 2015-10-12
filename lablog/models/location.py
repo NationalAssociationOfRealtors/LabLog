@@ -13,3 +13,11 @@ class Location(orm.Document):
     description = field.Char()
     geo = field.Geo()
     interfaces = orm.List(type=LocationInterface)
+
+    def get_interface_data(self, db, _from="2d"):
+        vals = {}
+        for i in self.interfaces:
+            inter = i.interface
+            vals[inter.__class__.__name__] = inter.get_values(db, _from)
+
+        return vals
