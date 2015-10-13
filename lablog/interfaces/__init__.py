@@ -39,19 +39,23 @@ class Interface(orm.Document):
 
     def get_values(self, db, _from):
         historical = "SELECT value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
-        previous = "SELECT FIRST(value) FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
+        previous = "SELECT FIRST(value) as value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
         current = "SELECT LAST(value) as value FROM \"lablog\".\"realtime\"./{}.*/ WHERE interface='{}'".format(self.measurement_key, self._id)
-        aggregate = "SELECT MIN(value) as min_value, MAX(value) as max_value, MEAN(value) as mean_value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
+        aggregate = "SELECT MIN(value) as min_value, MAX(value) as max_value, MEAN(value) as mean_value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
         sql = "{};{};{};{}".format(historical, previous, current, aggregate)
         res = db.query(sql)
         ret = {}
         for t,g in res[0].items():
+            ret.setdefault(t[0], {})
             ret[t[0]] = {'historical': [p for p in g]}
         for t,g in res[1].items():
+            ret.setdefault(t[0], {})
             ret[t[0]].update({'previous': [p for p in g]})
         for t,g in res[2].items():
+            ret.setdefault(t[0], {})
             ret[t[0]].update({'current': [p for p in g]})
         for t,g in res[3].items():
+            ret.setdefault(t[0], {})
             ret[t[0]].update({'aggregate': [p for p in g]})
 
         return ret

@@ -63,3 +63,4 @@ terraform/.terraform
 /config/nginx/*.key
 celerybeat-schedule
 /test.py
+/www

@@ -19,8 +19,8 @@ location = Blueprint(
 @location.route("/list", methods=["GET"])
 #@oauth.require_oauth('analytics')
 def get_locations():
-    nodes = [loc for loc in Location.find()]
-    return jsonify({"nodes":nodes})
+    locs = [loc.json() for loc in Location.find()]
+    return jsonify(locs)
 
 @location.route("/<location_id>", methods=["GET"])
 #@oauth.require_oauth('analytics')

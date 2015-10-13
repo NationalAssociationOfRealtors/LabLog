@@ -134,7 +134,7 @@ scheduler:
 
 nginx:
     image: nginx:1.7
-    log_driver: "syslog"
+    #log_driver: "syslog"
     links:
         - api:backend
         - grafana:graf
