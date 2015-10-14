@@ -97,7 +97,7 @@ api:
         service: basepython
     hostname: api
     command: ./startup.sh
-    #log_driver: "syslog"
+    log_driver: "syslog"
     expose:
         - "8000:8000"
     links:
@@ -110,7 +110,7 @@ workers:
     extends:
         service: basepython
     command: celery -A lablog.workers worker --loglevel=info --autoreload
-    #log_driver: "syslog"
+    log_driver: "syslog"
     links:
         - mongodb:mongo
         - elasticsearch:es
