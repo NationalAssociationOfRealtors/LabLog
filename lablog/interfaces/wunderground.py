@@ -1,12 +1,13 @@
 from lablog.interfaces import Interface
 from lablog import messages
 import humongolus.field as field
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 
 class Wunderground(Interface):
     exchange = messages.Exchanges.weather
     measurement_key = "weather"
+    run_delta = timedelta(minutes=5)
 
     station_id = field.Char()
     api_key = field.Char()

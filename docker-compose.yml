@@ -96,8 +96,8 @@ api:
     extends:
         service: basepython
     hostname: api
-    command: gunicorn -c /config/gunicorn.conf wsgi:app --reload
-    log_driver: "syslog"
+    command: ./startup.sh
+    #log_driver: "syslog"
     expose:
         - "8000:8000"
     links:
@@ -110,7 +110,7 @@ workers:
     extends:
         service: basepython
     command: celery -A lablog.workers worker --loglevel=info --autoreload
-    log_driver: "syslog"
+    #log_driver: "syslog"
     links:
         - mongodb:mongo
         - elasticsearch:es
@@ -134,7 +134,7 @@ scheduler:
 
 nginx:
     image: nginx:1.7
-    #log_driver: "syslog"
+    log_driver: "syslog"
     links:
         - api:backend
         - grafana:graf

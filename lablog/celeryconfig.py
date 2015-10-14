@@ -36,12 +36,8 @@ CELERY_TIMEZONE = 'UTC'
 #CELERY_REDIRECT_STDOUTS_LEVEL = INFO
 
 CELERYBEAT_SCHEDULE = {
-    'monitor_locations_30sec': {
-        'task': 'lablog.workers.monitor_locations_30sec',
+    'monitor_locations': {
+        'task': 'lablog.workers.run_interfaces',
         'schedule': datetime.timedelta(seconds=30),
-    },
-    'monitor_locations_5min': {
-        'task': 'lablog.workers.monitor_locations_5min',
-        'schedule': datetime.timedelta(minutes=5),
     },
 }

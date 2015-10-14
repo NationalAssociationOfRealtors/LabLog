@@ -48,7 +48,7 @@ class Consumer(ConsumerMixin):
 
 def publish(connection, payload, exchange, routing_key):
     with producers[connection].acquire(block=True) as producer:
-        logging.info("Publishing: {} to exchange {} with routing {}".format(payload, exchange, routing_key))
+        logging.debug("Publishing: {} to exchange {} with routing {}".format(payload, exchange, routing_key))
         producer.publish(
             payload,
              serializer='pickle',

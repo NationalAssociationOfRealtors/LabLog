@@ -2,6 +2,7 @@ from lablog.interfaces import Interface
 import humongolus.field as field
 from xml.etree import ElementTree as ET
 from datetime import datetime
+from datetime import timedelta
 from lablog import messages
 import requests
 import logging
@@ -9,6 +10,7 @@ import logging
 class HomeEnergyMonitor(Interface):
     exchange = messages.Exchanges.energy
     measurement_key = "energy.smartmeter"
+    run_delta = timedelta(seconds=30)
 
     url = field.Char()
     un = field.Char()

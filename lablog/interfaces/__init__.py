@@ -1,5 +1,8 @@
 import humongolus as orm
+import humongolus.field as field
 from lablog import messages
+from lablog.triggers import TriggerInstance
+import datetime
 import logging
 
 class NotImplemented(Exception): pass
@@ -10,6 +13,20 @@ class Interface(orm.Document):
     _collection = 'interfaces'
     exchange = None
     measurement_key = None
+    run_delta = None#datetime.timedelta(minutes=5)
+
+    _last_run = field.Date()
+
+    def run(self, db, mq, data=None):
+        now  = datetime.datetime.utcnow()
+        if not self.run_delta: return
+        if not self._last_run or ((now - self._last_run) >= self.run_delta):
+            self.go(db, mq, data)
+            self._last_run = datetime.datetime.utcnow()
+            self.save()
+        else:
+            logging.info("No need to run")
+        return True
 
     def data(self, data=None):
         raise NotImplemented('data method should be overridden in subclass and return data')
@@ -42,6 +59,8 @@ class Interface(orm.Document):
         previous = "SELECT FIRST(value) as value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
         current = "SELECT LAST(value) as value FROM \"lablog\".\"realtime\"./{}.*/ WHERE interface='{}'".format(self.measurement_key, self._id)
         aggregate = "SELECT MIN(value) as min_value, MAX(value) as max_value, MEAN(value) as mean_value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
+        triggers = TriggerInstance.find({'enabled':True, 'interface':str(self._id)})
+
         sql = "{};{};{};{}".format(historical, previous, current, aggregate)
         res = db.query(sql)
         ret = {}
@@ -57,5 +76,11 @@ class Interface(orm.Document):
         for t,g in res[3].items():
             ret.setdefault(t[0], {})
             ret[t[0]].update({'aggregate': [p for p in g]})
+
+        logging.info("Triggers!")
+        for t in triggers:
+            logging.info(t.json())
+            v = ret.get(t.key)
+            if v: v.update({'trigger':t.level})
 
         return ret

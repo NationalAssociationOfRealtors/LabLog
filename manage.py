@@ -20,9 +20,11 @@ class RunWorker(Command):
 class InitApplication(Command):
 
     def run(self):
+        logging.info("Initializing Application...")
         app.configure_dbs()
         from lablog.triggers.node import CO2
         from lablog.triggers.lab import Presence
+        from lablog.triggers.energy import InputFrequency
         try:
             c = CO2()
             c.name = 'notify slack c02'#unique
@@ -37,6 +39,13 @@ class InitApplication(Command):
             c.key = 'presence'
             c.save()
         except: pass
+        try:
+            c = InputFrequency()
+            c.name = 'check input frequency'#unique
+            c.key = 'energy.ups.input_frequency'
+            c.save()
+        except: pass
+        logging.info("Initialization Complete.")
 
 
 manager.add_command('command', RunWorker())

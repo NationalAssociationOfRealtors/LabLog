@@ -2,12 +2,13 @@ from snimpy.manager import Manager as M
 from snimpy.manager import load
 from lablog.interfaces.snmp import SNMP
 from lablog import messages
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class UPS(SNMP):
 
-    exhange = messages.Exchanges.energy
+    exchange = messages.Exchanges.energy
     measurement_key = "energy.ups"
+    run_delta = timedelta(seconds=30)
 
     def data(self, data=None):
         for i in self.mibs.split(","): load(i)

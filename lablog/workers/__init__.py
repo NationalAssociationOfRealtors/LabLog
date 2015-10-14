@@ -27,6 +27,7 @@ class TriggerConsumer(bootsteps.ConsumerStep):
             logging.info("Received Trigger Message: {}".format(body))
             logging.info("Checking for qualified triggers")
             for t in self.triggers:
+                logging.info("Checking against: {}".format(t.key))
                 if t.key == body['measurement']:
                     logging.info("Found trigger.")
                     val = t._run(body)
@@ -49,26 +50,13 @@ class TriggerConsumer(bootsteps.ConsumerStep):
 app.steps['consumer'].add(TriggerConsumer)
 
 @app.task
-def monitor_locations_30sec():
-    clss = ['UPS', 'HomeEnergyMonitor', 'EnergyGateway']
+def run_interfaces():
     for loc in Location.find():
         for i in loc.interfaces:
-            if i.interface.__class__.__name__  in clss:
-                logging.info("Running Interface: {}".format(i.interface.__class__.__name__))
-                try:
-                    i.interface.go(INFLUX, MQ)
-                except Exception as e:
-                    logging.exception(e)
-                logging.info("Finished Interface: {}".format(i.interface.__class__.__name__))
-    MQ.release()
-
-@app.task
-def monitor_locations_5min():
-    clss = ['Wunderground',]
-    for loc in Location.find():
-        for i in loc.interfaces:
-            if i.interface.__class__.__name__  in clss:
-                logging.info("Running Interface: {}".format(i.interface.__class__.__name__))
-                i.interface.go(INFLUX, MQ)
-                logging.info("Finished Interface: {}".format(i.interface.__class__.__name__))
+            logging.info("Running Interface: {}".format(i.interface.__class__.__name__))
+            try:
+                i.interface.run(INFLUX, MQ)
+            except Exception as e:
+                logging.exception(e)
+            logging.info("Finished Interface: {}".format(i.interface.__class__.__name__))
     MQ.release()

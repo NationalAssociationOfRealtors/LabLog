@@ -2,11 +2,12 @@ from lablog.interfaces import Interface
 import humongolus.field as field
 from lablog import messages
 import requests
-from datetime import datetime
+from datetime import timedelta, datetime
 
 class EnergyGateway(Interface):
     exchange = messages.Exchanges.energy
     measurement_key = "energy.smartmeter"
+    run_delta = timedelta(seconds=30)
 
     CMD = "<LocalCommand>\
             <Name>get_usage_data</Name>\
@@ -27,7 +28,7 @@ class EnergyGateway(Interface):
     def data(self, data=None):
         cmd = self.CMD.format(**{'macid':self.macid})
         url = "{}/cgi-bin/cgi_manager".format(self.url)
-        res = requests.post(url, auth=(self.un, self.pw), data=cmd)
+        res = requests.post(url, auth=(self.un, self.pw), data=cmd, timeout=5)
         return res.json()
 
     def parse_data(self, data):
