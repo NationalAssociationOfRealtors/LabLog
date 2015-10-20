@@ -13,7 +13,7 @@ import json
 class NetAtmo(Interface):
     exchange = messages.Exchanges.node
     measurement_key = "netatmo"
-    run_delta = timedelta(seconds=10)
+    run_delta = timedelta(seconds=30)
 
     mac_address = field.Char()
 
