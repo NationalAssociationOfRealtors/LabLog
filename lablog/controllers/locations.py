@@ -3,6 +3,7 @@ from flask.views import MethodView
 from lablog.models.location import Location, LocationInterface
 from lablog.interfaces.eagle import EnergyGateway
 from lablog.interfaces.neurio import HomeEnergyMonitor
+from lablog.interfaces.netatmo import NetAtmo
 from lablog.interfaces.sensornode import Node
 from lablog.interfaces.presence import Presence
 from lablog.interfaces.ups import UPS
@@ -15,6 +16,7 @@ interfaces = {
     EnergyGateway.__name__: EnergyGateway,
     HomeEnergyMonitor.__name__: HomeEnergyMonitor,
     Presence.__name__: Presence,
+    NetAtmo.__name__: NetAtmo,
     Node.__name__: Node,
     UPS.__name__: UPS,
     Wunderground.__name__: Wunderground,
