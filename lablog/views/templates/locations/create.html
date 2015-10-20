@@ -22,7 +22,11 @@
     <div class='form-group'>
     {% for k,field in interface._fields.iteritems() %}
         <label for='location.{{k}}'>{{field._name}}</label>
-        <input type="text" class='form-control' name='{{ki}}.{{k}}' value="{% if interface._get(k)._value %}{{interface._get(k)._value}}{% endif %}"/>
+        {% if k == '_last_run' %}
+            <p>{{interface._get(k)._value}}</p>
+        {% else %}
+            <input type="text" class='form-control' name='{{ki}}.{{k}}' value="{% if interface._get(k)._value %}{{interface._get(k)._value}}{% endif %}"/>
+        {% endif %}
     {% endfor %}
 </div>
 {% endfor %}

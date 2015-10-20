@@ -18,66 +18,44 @@ class NetAtmo(Interface):
     mac_address = field.Char()
 
     KEYS = ['Noise', 'Temperature', 'temp_trend', 'Humidity', 'Pressure','CO2']
+
     def data(self, data=None):
-
         authorization = lablog.util.lnetatmo.ClientAuth()
-
         devList = lablog.util.lnetatmo.DeviceList(authorization)
         payload = devList.getStationsData(device_id=self.mac_address)
         return payload
 
+    def point(self, value, namespace, field):
+        t = datetime.utcnow()
+        value = self.parse_value(value)
+        return dict(
+            measurement="{}.{}.{}".format(self.measurement_key, namespace, self.slugify(field)),
+            time=t,
+            tags=dict(
+                station_id=self.mac_address,
+                interface=str(self._id),
+            ),
+            fields=dict(
+                value=value
+            )
+        )
+
     def parse_data(self, data):
         points = []
         t = datetime.utcnow()
-        #logging.info("=========all json===========")
-        #logging.info(json.dumps(data["body"]["devices"], indent=4))
-        #logging.info("=========alarms===========")
-        #logging.info(data["body"]["devices"][0]["meteo_alarms"])
-        #logging.info("=========outdoor module==========")
-        #logging.info(data["body"]["devices"][0]["modules"][0]["dashboard_data"])
+        outdoor = data["body"]["devices"][0]["modules"][0]["dashboard_data"]
+        indoor = data["body"]["devices"][0]["dashboard_data"]
 
-        for k,v in data["body"]["devices"][0]["modules"][0]["dashboard_data"].iteritems():
-            if k in self.KEYS:
-                logging.info(k)
-                value = self.parse_value(v)
-                points.append(dict(
-                    measurement="{}.outdoor.{}".format(self.measurement_key, self.slugify(k)),
-                    time=t,
-                    tags=dict(
-                        station_id=self.mac_address,
-                        interface=str(self._id),
-                    ),
-                    fields=dict(
-                        value=value
-                    )
-                ))
+        for k in self.KEYS:
+            i = indoor.get(k)
+            o = outdoor.get(k)
+            if i: points.append(self.point(i, 'indoor', k))
+            if o: points.append(self.point(o, 'outdoor', k))
 
-
-
-
-        #logging.info("==========indoor module==========")
-        #logging.info(data["body"]["devices"][0]["dashboard_data"])
-
-        for k,v in data["body"]["devices"][0]["dashboard_data"].iteritems():
-            if k in self.KEYS:
-                logging.info(k)
-                value = self.parse_value(v)
-                points.append(dict(
-                    measurement="{}.indoor.{}".format(self.measurement_key, self.slugify(k)),
-                    time=t,
-                    tags=dict(
-                        station_id=self.mac_address,
-                        interface=str(self._id),
-                    ),
-                    fields=dict(
-                        value=value
-                    )
-                ))
         return points
 
     def slugify(self, value):
         return "{}".format(value.replace("_", "-")).lower()
-
 
     def parse_value(self, v):
             try:

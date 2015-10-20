@@ -33,6 +33,8 @@ class LocationController(MethodView):
         if id:
             loc = Location(id=id)
             ints = {interface.interface.__class__.__name__: interface.interface for interface in loc.interfaces}
+            for k,v in interfaces.iteritems():
+                if not ints.get(k): ints.update({k: v()})
         else:
             loc = Location()
             ints = {key: value() for (key, value) in interfaces.iteritems()}
