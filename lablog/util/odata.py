@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime
 
 class OData(object):
 
@@ -32,6 +33,21 @@ class OData(object):
         self.params.setdefault('$skip', skip)
         return self
 
+    def parse_dates(self, res):
+        def get_date(d):
+            return datetime.fromtimestamp(int(d[6:-2])/1000)
+        if isinstance(res, list):
+            for i in res:
+                print i
+                for k,v in i.iteritems():
+                    if isinstance(v, unicode) and v[1:5] == 'Date': i[k] = get_date(v)
+
+        else:
+            for k,v in res.iteritems():
+                if isinstance(v, unicode) and v[1:5] == 'Date': res[k] = get_date(v)
+
+        return res
+
     def get(self):
         print self.root_url
         print self.params
@@ -42,4 +58,4 @@ class OData(object):
             headers={'accept':'application/json'}
         )
         j = res.json()
-        return j.get('d', {}).get('results', j['d'])
+        return self.parse_dates(j.get('d', {}).get('results', j['d']))
