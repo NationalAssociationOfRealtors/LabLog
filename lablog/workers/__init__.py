@@ -55,8 +55,12 @@ def run_interfaces():
         for i in loc.interfaces:
             logging.info("Running Interface: {}".format(i.interface.__class__.__name__))
             try:
-                i.interface.run(INFLUX, MQ)
+                if i.interface.errors < 5:
+                    i.interface.run(INFLUX, MQ)
+                    i.interface.errors = 0
             except Exception as e:
-                logging.exception(e)
+                i.interface.errors+=1
+                logging.error(e)
+            i.interface.save()
             logging.info("Finished Interface: {}".format(i.interface.__class__.__name__))
     MQ.release()
