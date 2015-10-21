@@ -20,9 +20,13 @@ class Interface(orm.Document):
 
     def run(self, db, mq, data=None):
         now  = datetime.datetime.utcnow()
-        if not self.run_delta: return
+        if not self.run_delta:
+            logging.info("No Delta")
+            return
         if not self._last_run or ((now - self._last_run) >= self.run_delta):
+            logging.info("Going")
             self.go(db, mq, data)
+            logging.info("Updating last run")
             self._last_run = datetime.datetime.utcnow()
             self.save()
         else:

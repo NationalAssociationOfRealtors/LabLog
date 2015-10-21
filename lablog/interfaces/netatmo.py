@@ -23,6 +23,7 @@ class NetAtmo(Interface):
         authorization = lablog.util.lnetatmo.ClientAuth()
         devList = lablog.util.lnetatmo.DeviceList(authorization)
         payload = devList.getStationsData(device_id=self.mac_address)
+        logging.info(payload)
         return payload
 
     def point(self, value, namespace, field):

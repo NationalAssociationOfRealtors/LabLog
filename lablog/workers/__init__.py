@@ -24,14 +24,14 @@ class TriggerConsumer(bootsteps.ConsumerStep):
 
     def handle_trigger(self, body, msg):
         try:
-            logging.info("Received Trigger Message: {}".format(body))
-            logging.info("Checking for qualified triggers")
+            #logging.info("Received Trigger Message: {}".format(body))
+            #logging.info("Checking for qualified triggers")
             for t in self.triggers:
-                logging.info("Checking against: {}".format(t.key))
+                #logging.info("Checking against: {}".format(t.key))
                 if t.key == body['measurement']:
                     logging.info("Found trigger.")
                     val = t._run(body)
-                    logging.info("Trigger Result: {}".format(val))
+                    #logging.info("Trigger Result: {}".format(val))
         except Exception as e:
             logging.exception(e)
         finally:
@@ -52,15 +52,14 @@ app.steps['consumer'].add(TriggerConsumer)
 @app.task
 def run_interfaces():
     for loc in Location.find():
+        logging.info("Monitoring Location: {}".format(loc.name))
         for i in loc.interfaces:
             logging.info("Running Interface: {}".format(i.interface.__class__.__name__))
             try:
-                if i.interface.errors < 5:
-                    i.interface.run(INFLUX, MQ)
-                    i.interface.errors = 0
+                i.interface.run(INFLUX, MQ)
+                i.interface.errors = 0
             except Exception as e:
-                i.interface.errors+=1
-                logging.error(e)
+                logging.exception(e)
             i.interface.save()
             logging.info("Finished Interface: {}".format(i.interface.__class__.__name__))
     MQ.release()
