@@ -56,12 +56,18 @@
         </div>
         <div>
             <ul id="tabs" class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#attributes" aria-controls="attributes" role="tab" data-toggle="tab">Attributes</a></li>
-                <li role="presentation"><a href="#rosetta" aria-controls="rosetta" role="tab" data-toggle="tab">Rosetta Home</a></li>
+                <li role="presentation" class="active"><a href="#rosetta" aria-controls="rosetta" role="tab" data-toggle="tab">Rosetta Home</a></li>
+                <li role="presentation"><a href="#attributes" aria-controls="attributes" role="tab" data-toggle="tab">Attributes</a></li>
             </ul>
 
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active fade in active" id="attributes">
+                <div role="tabpanel" class="tab-pane fade in active" id="rosetta">
+                    <h2>CO2</h2>
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <iframe class="embed-responsive-item" src="/location/{{loc._id}}/interface/NetAtmo"></iframe>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="attributes">
                     <dl class="dl-horizontal">
                     {% for k,v in property.iteritems() %}
                         <dt>{{k}}</dt>
@@ -69,13 +75,6 @@
                     {% endfor %}
                     </dl>
                 </div>
-                <div role="tabpanel" class="tab-pane fade" id="rosetta">
-                    <h2>CO2</h2>
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item" src="/location/{{loc._id}}/interface/NetAtmo"></iframe>
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane fade" id="photos">Photos</div>
             </div>
         </div>
     </div>
