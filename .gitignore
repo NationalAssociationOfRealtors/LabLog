@@ -64,3 +64,4 @@ terraform/.terraform
 celerybeat-schedule
 /test.py
 /www
+celerybeat.pid
