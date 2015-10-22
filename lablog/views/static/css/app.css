@@ -55,3 +55,15 @@ body.create_location h3{
 a.create{
     font-size: 12px;
 }
+
+.thumbnail{
+    padding: 0;
+}
+
+.thumbnail img{
+    width: 100%;
+}
+
+.thumbnail .caption-full{
+    padding: 9px;
+}
