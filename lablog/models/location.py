@@ -12,6 +12,7 @@ class Location(orm.Document):
     name = field.Char()
     description = field.Char()
     geo = field.Geo()
+    property_id = field.Char()
     interfaces = orm.List(type=LocationInterface)
 
     def get_interface_data(self, db, _from="2d"):

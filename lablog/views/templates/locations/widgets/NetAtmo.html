@@ -1,0 +1,87 @@
+{% extends "locations/widgets/widget.html" %}
+
+{% block content %}
+
+<style>
+    html, body{
+        height: 100%;
+    }
+
+    #chart{
+        height: 100%;
+    }
+</style>
+
+<div id="chart">
+    <svg></svg>
+</div>
+
+
+<script>
+nv.addGraph(function() {
+
+    var domain = [
+        {% for i in data.get('netatmo.indoor.co2').get('historical') %}
+            new Date("{{i.time}}"),
+        {% endfor %}
+    ];
+
+
+    var ticks = [];
+    for(var i=0; i<domain.length; i+=3){
+        ticks.push(domain[i]);
+    }
+
+    ticks.push(domain[domain.length-1]);
+
+    var width = $(window).width();
+
+    var chart = nv.models.discreteBarChart()
+        .x(function(d) { return d.time })    //Specify the data accessors.
+        .y(function(d) { return d.value })
+        .tooltips(true)        //Don't show tooltips
+        .showValues(true)       //...instead, show the bar value right on top of each bar.
+        .transitionDuration(350)
+
+    var x = d3.time.scale.utc()
+        .domain([domain[0], domain[domain.length-1]])
+        .range([0, width])
+
+    console.log(width)
+
+    chart.xAxis
+        .tickValues(ticks)
+        .tickFormat(
+            function(d){
+                return d3.time.format("%m/%d")(d)
+            }
+        )
+        .rotateLabels(-45)
+
+
+    d3.select('#chart svg').datum(data).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+function data(){
+    return [
+        {
+            key: "CO2",
+            values:[
+                {% for i in data.get('netatmo.indoor.co2').get('historical') %}
+                    {
+                        value:{{i.value}},
+                        time:new Date("{{i.time}}"),
+                    },
+                {% endfor %}
+            ]
+        }
+    ];
+}
+
+</script>
+
+{% endblock %}

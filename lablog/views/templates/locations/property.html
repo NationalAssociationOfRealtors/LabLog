@@ -7,34 +7,47 @@
 {% block content %}
 <div class="row">
     <div class="col-md-3">
-        <div class="thumbnail">
-            <img src="http://placehold.it/300x100" alt="...">
-            <div class="caption">
-                <h4>1138 W. Pratt Blvd</h4>
-                <p>...</p>
-                <p><a href="#" class="btn btn-primary" role="button">Button</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
+        {% for l in Location.find() %}
+            <div class="thumbnail">
+                <img src="http://www.mredllc.com/photos/property/{{l.property_id[-3:]}}/{{l.property_id}}.jpg" alt="">
+                <div class="caption">
+                    <h4>{{l.name}}</h4>
+                    <p><a href="{{url_for('locations.location_property', location=l._id)}}" class="btn btn-primary" role="button">View</a></p>
+                </div>
             </div>
-        </div>
-        <div class="thumbnail">
-            <img src="http://placehold.it/300x100" alt="...">
-            <div class="caption">
-                <h4>1229 W. Jarvis Ave.</h4>
-                <p>...</p>
-                <p><a href="#" class="btn btn-primary" role="button">Button</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
-            </div>
-        </div>
-        <div class="thumbnail">
-            <img src="http://placehold.it/300x100" alt="...">
-            <div class="caption">
-                <h4>1502 W. Jarvis Ave.</h4>
-                <p>...</p>
-                <p><a href="#" class="btn btn-primary" role="button">Button</a> <a href="#" class="btn btn-default" role="button">Button</a></p>
-            </div>
-        </div>
+        {% endfor %}
     </div>
     <div class="col-md-9">
         <div class="thumbnail">
-            <img class="img-responsive" src="http://placehold.it/800x300" alt="">
+            <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">                <!-- Indicators -->
+                <ol class="carousel-indicators">
+                    <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+                    {% for i in range(1, property.PhotosCount) %}
+                        <li data-target="#carousel-example-generic" data-slide-to="{{i}}"></li>
+                    {% endfor %}
+                </ol>
+
+                <div class="carousel-inner" role="listbox">
+                    <div class="item active">
+                        <img src="http://www.mredllc.com/photos/property/{{property.ListingId[-3:]}}/{{property.ListingId}}.jpg" alt="">
+                    </div>
+                    {% for i in range(1, property.PhotosCount) %}
+                        <div class="item">
+                            <img src="http://www.mredllc.com/photos/property/{{property.ListingId[-3:]}}/{{property.ListingId}}_{{i}}.jpg" alt="">
+                        </div>
+                    {% endfor %}
+                </div>
+
+
+                <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
             <div class="caption-full">
                 <h4 class="pull-right">{{"${:,.2f}".format(property.ListPrice)}}</h4>
                 <h4><a href="#">{{property.StreetNumber}} {{property.StreetName}}</a></h4>
@@ -45,7 +58,6 @@
             <ul id="tabs" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active"><a href="#attributes" aria-controls="attributes" role="tab" data-toggle="tab">Attributes</a></li>
                 <li role="presentation"><a href="#rosetta" aria-controls="rosetta" role="tab" data-toggle="tab">Rosetta Home</a></li>
-                <li role="presentation"><a href="#photos" aria-controls="photos" role="tab" data-toggle="tab">Photos</a></li>
             </ul>
 
             <div class="tab-content">
@@ -57,7 +69,12 @@
                     {% endfor %}
                     </dl>
                 </div>
-                <div role="tabpanel" class="tab-pane fade" id="rosetta">Rosetta</div>
+                <div role="tabpanel" class="tab-pane fade" id="rosetta">
+                    <h2>CO2</h2>
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <iframe class="embed-responsive-item" src="/location/{{loc._id}}/interface/NetAtmo"></iframe>
+                    </div>
+                </div>
                 <div role="tabpanel" class="tab-pane fade" id="photos">Photos</div>
             </div>
         </div>
@@ -73,6 +90,7 @@
         e.preventDefault();
         $(this).tab('show');
     });
+    $(".carousel").carousel();
 </script>
 
 {% endblock %}

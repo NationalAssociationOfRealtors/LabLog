@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, render_template, jsonify, url_for, request, flash, redirect
+from flask import Blueprint, Response, render_template, jsonify, url_for, request, flash, redirect, g
 from flask.views import MethodView
 from lablog.models.location import Location, LocationInterface
 from lablog.interfaces.eagle import EnergyGateway
@@ -77,11 +77,32 @@ class LocationController(MethodView):
 
 class LocationProperty(MethodView):
 
-    def get(self):
+    def get(self, location):
+        loc = Location(id=location)
         od = OData("http://connectmls-api.mredllc.com/RESO/Odata", "plugfest1", "plugfest2015")
-        res = od.entity("Property").filter("PostalCode eq '60626'").orderby("ListingContractDate desc").top("1").get()
-        return render_template("locations/property.html", property=res[0])
+        res = od.entity("Property").filter("PostalCode eq '60626'").orderby("ListingContractDate desc").top("5").get()
+        for i in res:
+            logging.info(i.get('ListingId'))
+        od = OData("http://connectmls-api.mredllc.com/RESO/Odata", "plugfest1", "plugfest2015")
+        res = od.entity("Property").id(loc.property_id)#filter("PostalCode eq '60626'").orderby("ListingContractDate desc").top("1").get()
+        logging.info(res)
+        return render_template("locations/property.html", property=res, loc=loc, Location=Location)
+
+class LocationWidget(MethodView):
+
+    def get(self, location, interface):
+        loc = Location(id=location)
+        res = {}
+        for l in loc.interfaces:
+            n = l._get('interface')._value.get('cls').split(".")[-1]
+            if n == interface:
+                res = l.interface.get_long_history(db=g.INFLUX, _from="4w")
+                break
+
+        logging.info(res)
+        return render_template("locations/widgets/{}.html".format(interface), data=res, interface=interface)
 
 locations.add_url_rule("/location", view_func=LocationController.as_view('create_location'))
 locations.add_url_rule("/location/<id>", view_func=LocationController.as_view('location'))
-locations.add_url_rule("/location/property", view_func=LocationProperty.as_view('location_property'))
+locations.add_url_rule("/location/<location>/property", view_func=LocationProperty.as_view('location_property'))
+locations.add_url_rule("/location/<location>/interface/<interface>", view_func=LocationWidget.as_view('location_widget'))

@@ -1,5 +1,6 @@
 import requests
 from datetime import datetime
+import logging
 
 class OData(object):
 
@@ -49,8 +50,8 @@ class OData(object):
         return res
 
     def get(self):
-        print self.root_url
-        print self.params
+        logging.debug(self.root_url)
+        logging.debug(self.params)
         res = requests.get(
             self.root_url,
             auth=(self.un, self.pw),
@@ -58,4 +59,5 @@ class OData(object):
             headers={'accept':'application/json'}
         )
         j = res.json()
+        if j.get('error'): raise Exception(message=j.get('error'))
         return self.parse_dates(j.get('d', {}).get('results', j['d']))

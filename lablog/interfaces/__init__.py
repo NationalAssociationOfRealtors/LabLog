@@ -58,6 +58,17 @@ class Interface(orm.Document):
         self.queue(parsed_data, mq, self.exchange)
         return parsed_data
 
+    def get_long_history(self, db, _from):
+        historical = "SELECT MEAN(value) as value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}' GROUP BY time(1d) fill(0)".format(self.measurement_key, _from, self._id)
+        logging.info(historical)
+        res = db.query(historical)
+        ret = {}
+        for t,g in res.items():
+            ret.setdefault(t[0], {})
+            ret[t[0]] = {'historical': [p for p in g]}
+
+        return ret
+
     def get_values(self, db, _from):
         historical = "SELECT value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
         previous = "SELECT FIRST(value) as value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
