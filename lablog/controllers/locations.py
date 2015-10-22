@@ -8,6 +8,7 @@ from lablog.interfaces.sensornode import Node
 from lablog.interfaces.presence import Presence
 from lablog.interfaces.ups import UPS
 from lablog.interfaces.wunderground import Wunderground
+from lablog.util.odata import OData
 from lablog import config
 from humongolus import Field
 import logging
@@ -74,5 +75,13 @@ class LocationController(MethodView):
         flash("Saved!", "success")
         return redirect(url_for('.location', id=loc._id))
 
+class LocationProperty(MethodView):
+
+    def get(self):
+        od = OData("http://connectmls-api.mredllc.com/RESO/Odata", "plugfest1", "plugfest2015")
+        res = od.entity("Property").filter("PostalCode eq '60626'").orderby("ListingContractDate desc").top("1").get()
+        return render_template("locations/property.html", property=res[0])
+
 locations.add_url_rule("/location", view_func=LocationController.as_view('create_location'))
 locations.add_url_rule("/location/<id>", view_func=LocationController.as_view('location'))
+locations.add_url_rule("/location/property", view_func=LocationProperty.as_view('location_property'))

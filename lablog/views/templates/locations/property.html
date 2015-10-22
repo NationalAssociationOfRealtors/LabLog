@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Property{% endblock %}
+
+{% block content %}
+<div class="col-md-3">
+    Hi
+</div>
+<div class="col-md-9">
+    <div class="thumbnail">
+        <img class="img-responsive" src="http://placehold.it/800x300" alt="">
+        <div class="caption-full">
+            <h4 class="pull-right">{{ "${:,.2f}".format(property.ListPrice) }}</h4>
+            <h4><a href="#">{{property.StreetNumber}} {{property.StreetName}}</a></h4>
+            <p>{{property.PublicRemarks}}</p>
+        </div>
+    </div>
+    <div>
+        <ul id="tabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#attributes" aria-controls="attributes" role="tab" data-toggle="tab">Attributes</a></li>
+            <li role="presentation"><a href="#rosetta" aria-controls="rosetta" role="tab" data-toggle="tab">Rosetta Home</a></li>
+            <li role="presentation"><a href="#photos" aria-controls="photos" role="tab" data-toggle="tab">Photos</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active fade in active" id="attributes">
+                <dl class="dl-horizontal">
+                {% for k,v in property.iteritems() %}
+                    <dt>{{k}}</dt>
+                    <dd>{{v}}</dd>
+                {% endfor %}
+                </dl>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" id="rosetta">Rosetta</div>
+            <div role="tabpanel" class="tab-pane fade" id="photos">Photos</div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+
+<script type='text/javascript'>
+    $('#tabs a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+</script>
+
+{% endblock %}
