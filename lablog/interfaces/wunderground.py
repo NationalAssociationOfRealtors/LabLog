@@ -32,7 +32,7 @@ class Wunderground(Interface):
 
     def data(self, data=None):
         current_conditions = "http://api.wunderground.com/api/{}/conditions/q/pws:{}.json".format(self.api_key, self.station_id)
-        res = requests.get(current_conditions)
+        res = requests.get(current_conditions, timeout=5)
         return res.json()
 
     def parse_data(self, data):

@@ -28,7 +28,7 @@ class HomeEnergyMonitor(Interface):
             ls.append(i.strip())
         data = "".join(ls)
         data = data.split("</table>")
-        logging.info(data)
+        logging.debug(data)
         table1 = ET.XML("{}</table>".format(data[0]))
         table2 = ET.XML("{}</table>".format(data[1]))
         table1_rows = list(table1)

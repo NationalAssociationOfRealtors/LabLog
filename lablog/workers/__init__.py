@@ -24,14 +24,9 @@ class TriggerConsumer(bootsteps.ConsumerStep):
 
     def handle_trigger(self, body, msg):
         try:
-            #logging.info("Received Trigger Message: {}".format(body))
-            #logging.info("Checking for qualified triggers")
             for t in self.triggers:
-                #logging.info("Checking against: {}".format(t.key))
                 if t.key == body['measurement']:
-                    logging.info("Found trigger.")
                     val = t._run(body)
-                    #logging.info("Trigger Result: {}".format(val))
         except Exception as e:
             logging.exception(e)
         finally:
@@ -57,9 +52,7 @@ def run_interfaces():
             logging.info("Running Interface: {}".format(i.interface.__class__.__name__))
             try:
                 i.interface.run(INFLUX, MQ)
-                i.interface.errors = 0
             except Exception as e:
-                logging.exception(e)
-            i.interface.save()
+                logging.error(e)
             logging.info("Finished Interface: {}".format(i.interface.__class__.__name__))
     MQ.release()

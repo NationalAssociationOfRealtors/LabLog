@@ -246,7 +246,7 @@ def postRequest(url, params):
         params = urlencode(params)
         headers = {"Content-Type" : "application/x-www-form-urlencoded;charset=utf-8"}
         req = urllib2.Request(url=url, data=params, headers=headers)
-        resp = urllib2.urlopen(req).read()
+        resp = urllib2.urlopen(req, timeout=5).read()
     return json.loads(resp)
 
 def toTimeString(value):

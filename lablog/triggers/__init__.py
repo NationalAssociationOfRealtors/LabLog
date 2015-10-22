@@ -55,7 +55,6 @@ class Trigger(orm.Document):
         try:
             ret = self._me.run(message)
         except TriggerEnabled as e:
-            logging.info("Trigger Enabled")
             ti = TriggerInstance.find_one({'interface':interface, 'trigger.id':self._id})
             if not ti: ti = TriggerInstance()
             ti.enabled = True
@@ -67,7 +66,6 @@ class Trigger(orm.Document):
             self.last_run = datetime.utcnow()
             self.save()
         except TriggerDisabled as e:
-            logging.info("Trigger Disabled")
             ti = TriggerInstance.find_one({'interface':interface, 'trigger.id':self._id})
             if not ti: return
             ti.enabled = False
