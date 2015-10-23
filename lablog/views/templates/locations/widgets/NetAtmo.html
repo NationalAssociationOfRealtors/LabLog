@@ -4,50 +4,48 @@
 
 <style>
     html, body{
-        height: 100%;
+        height: 90%;
     }
 
-    #chart{
+    #charts{
         height: 100%;
     }
 </style>
-
-<div id="chart">
-    <svg></svg>
+<div id="charts">
+    <h3>CO2</h3>
+    <div id="co2">
+        <svg></svg>
+    </div>
+    <h3>Temperature</h3>
+    <div id="temperature">
+        <svg></svg>
+    </div>
+    <h3>Humidity</h3>
+    <div id="humidity">
+        <svg></svg>
+    </div>
 </div>
 
 
+
 <script>
+var domain = [
+    {% for i in data.get('netatmo.indoor.co2').get('historical') %}
+        new Date("{{i.time}}"),
+    {% endfor %}
+];
+var ticks = [];
+for(var i=0; i<domain.length; i+=3){
+    ticks.push(domain[i]);
+}
+ticks.push(domain[domain.length-1]);
+
 nv.addGraph(function() {
-
-    var domain = [
-        {% for i in data.get('netatmo.indoor.co2').get('historical') %}
-            new Date("{{i.time}}"),
-        {% endfor %}
-    ];
-
-
-    var ticks = [];
-    for(var i=0; i<domain.length; i+=3){
-        ticks.push(domain[i]);
-    }
-
-    ticks.push(domain[domain.length-1]);
-
-    var width = $(window).width();
-
     var chart = nv.models.discreteBarChart()
         .x(function(d) { return d.time })    //Specify the data accessors.
-        .y(function(d) { return d.value })
+        .y(function(d) { return d.value.toFixed(2) })
         .tooltips(true)        //Don't show tooltips
-        .showValues(true)       //...instead, show the bar value right on top of each bar.
         .transitionDuration(350)
-
-    var x = d3.time.scale.utc()
-        .domain([domain[0], domain[domain.length-1]])
-        .range([0, width])
-
-    console.log(width)
 
     chart.xAxis
         .tickValues(ticks)
@@ -58,20 +56,119 @@ nv.addGraph(function() {
         )
         .rotateLabels(-45)
 
-
-    d3.select('#chart svg').datum(data).call(chart);
+    d3.select('#co2 svg').datum(co2_data).call(chart);
 
     nv.utils.windowResize(chart.update);
 
     return chart;
 });
 
-function data(){
+nv.addGraph(function() {
+    var chart = nv.models.lineChart()
+        .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
+        .transitionDuration(350)  //how fast do you want the lines to transition?
+        .x(function(d) { return d.time })    //Specify the data accessors.
+        .y(function(d) { return d.value.toFixed(2) })
+
+    chart.xAxis
+        .tickValues(ticks)
+        .tickFormat(
+            function(d){
+                return d3.time.format("%m/%d")(new Date(d))
+            }
+        )
+        .rotateLabels(-45)
+
+    d3.select('#temperature svg').datum(temperature_data).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+nv.addGraph(function() {
+    var chart = nv.models.lineChart()
+        .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
+        .transitionDuration(350)  //how fast do you want the lines to transition?
+        .x(function(d) { return d.time })    //Specify the data accessors.
+        .y(function(d) { return d.value.toFixed(2) })
+
+    chart.xAxis
+        .tickValues(ticks)
+        .tickFormat(
+            function(d){
+                return d3.time.format("%m/%d")(new Date(d))
+            }
+        )
+        .rotateLabels(-45)
+
+    d3.select('#humidity svg').datum(humidity_data).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+function co2_data(){
     return [
         {
             key: "CO2",
             values:[
                 {% for i in data.get('netatmo.indoor.co2').get('historical') %}
+                    {
+                        value:{{i.value}},
+                        time:new Date("{{i.time}}"),
+                    },
+                {% endfor %}
+            ]
+        }
+    ];
+}
+
+function temperature_data(){
+    return [
+        {
+            key: "Indoor",
+            values:[
+                {% for i in data.get('netatmo.indoor.temperature').get('historical') %}
+                    {
+                        value:{{i.value}},
+                        time:new Date("{{i.time}}"),
+                    },
+                {% endfor %}
+            ]
+        },
+        {
+            key: "Outdoor",
+            values:[
+                {% for i in data.get('netatmo.outdoor.temperature').get('historical') %}
+                    {
+                        value:{{i.value}},
+                        time:new Date("{{i.time}}"),
+                    },
+                {% endfor %}
+            ]
+        }
+    ];
+}
+
+function humidity_data(){
+    return [
+        {
+            key: "Indoor",
+            values:[
+                {% for i in data.get('netatmo.indoor.humidity').get('historical') %}
+                    {
+                        value:{{i.value}},
+                        time:new Date("{{i.time}}"),
+                    },
+                {% endfor %}
+            ]
+        },
+        {
+            key: "Outdoor",
+            values:[
+                {% for i in data.get('netatmo.outdoor.humidity').get('historical') %}
                     {
                         value:{{i.value}},
                         time:new Date("{{i.time}}"),

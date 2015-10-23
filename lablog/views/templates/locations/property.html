@@ -5,18 +5,8 @@
 {% block title %}Property{% endblock %}
 
 {% block content %}
+<h2>{{loc.name}}</h2>
 <div class="row">
-    <div class="col-md-3">
-        {% for l in Location.find() %}
-            <div class="thumbnail">
-                <img src="http://www.mredllc.com/photos/property/{{l.property_id[-3:]}}/{{l.property_id}}.jpg" alt="">
-                <div class="caption">
-                    <h4>{{l.name}}</h4>
-                    <p><a href="{{url_for('locations.location_property', location=l._id)}}" class="btn btn-primary" role="button">View</a></p>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
     <div class="col-md-9">
         <div class="thumbnail">
             <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">                <!-- Indicators -->
@@ -62,8 +52,7 @@
 
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane fade in active" id="rosetta">
-                    <h2>CO2</h2>
-                    <div class="embed-responsive embed-responsive-16by9">
+                    <div class="embed-responsive embed-responsive-4by3">
                         <iframe class="embed-responsive-item" src="/location/{{loc._id}}/interface/NetAtmo"></iframe>
                     </div>
                 </div>
@@ -77,6 +66,20 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="col-md-3">
+        <h3 class="similar">Similar Properties</h3>
+        {% for l in Location.find() %}
+            {% if l._id != loc._id %}
+            <div class="thumbnail">
+                <img src="http://www.mredllc.com/photos/property/{{l.property_id[-3:]}}/{{l.property_id}}.jpg" alt="">
+                <div class="caption">
+                    <h4>{{l.name}}</h4>
+                    <p><a href="{{url_for('locations.location_property', location=l._id)}}" class="btn btn-primary" role="button">View</a></p>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
     </div>
 </div>
 

@@ -18,6 +18,7 @@
         {% block head %}{% endblock %}
     </head>
     <body class="{% block body_class %}{% endblock %}">
+    {% block body %}
         {% block menu %}
         <nav class="navbar navbar-default">
             {% block menu_items %}
@@ -62,6 +63,7 @@
                 </div><!-- /.navbar-collapse -->
                 {% endblock %}
             </nav>
+            {% endblock %}
             {% block container %}
             <div class='container'>
                 <div class='content'>
@@ -82,7 +84,7 @@
             </div>
             {% endblock %}
         </div><!-- /.container-fluid -->
-        {% endblock %}
+    {% endblock %}
     </body>
     {% block javascript %}{% endblock %}
 </html>

@@ -67,3 +67,9 @@ a.create{
 .thumbnail .caption-full{
     padding: 9px;
 }
+
+h3.similar{
+    margin-top: 0;
+    padding-bottom: 7px;
+    border-bottom: 2px solid #cccccc;
+}
