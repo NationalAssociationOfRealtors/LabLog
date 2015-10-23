@@ -30,7 +30,7 @@
 
 <script>
 var domain = [
-    {% for i in data.get('netatmo.indoor.co2').get('historical') %}
+    {% for i in data.get('netatmo.indoor.co2', {}).get('historical', []) %}
         new Date("{{i.time}}"),
     {% endfor %}
 ];
@@ -64,9 +64,7 @@ nv.addGraph(function() {
 });
 
 nv.addGraph(function() {
-    var chart = nv.models.lineChart()
-        .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
-        .transitionDuration(350)  //how fast do you want the lines to transition?
+    var chart = nv.models.linePlusBarChart()
         .x(function(d) { return d.time })    //Specify the data accessors.
         .y(function(d) { return d.value.toFixed(2) })
 
@@ -79,7 +77,13 @@ nv.addGraph(function() {
         )
         .rotateLabels(-45)
 
-    d3.select('#temperature svg').datum(temperature_data).call(chart);
+    chart.bars.forceY([0]);
+
+    d3.select('#temperature svg')
+        .datum(temperature_data)
+        .transition()
+        .duration()
+        .call(chart);
 
     nv.utils.windowResize(chart.update);
 
@@ -114,7 +118,7 @@ function co2_data(){
         {
             key: "CO2",
             values:[
-                {% for i in data.get('netatmo.indoor.co2').get('historical') %}
+                {% for i in data.get('netatmo.indoor.co2', {}).get('historical', []) %}
                     {
                         value:{{i.value}},
                         time:new Date("{{i.time}}"),
@@ -130,7 +134,7 @@ function temperature_data(){
         {
             key: "Indoor",
             values:[
-                {% for i in data.get('netatmo.indoor.temperature').get('historical') %}
+                {% for i in data.get('netatmo.indoor.temperature', {}).get('historical', []) %}
                     {
                         value:{{i.value}},
                         time:new Date("{{i.time}}"),
@@ -141,7 +145,19 @@ function temperature_data(){
         {
             key: "Outdoor",
             values:[
-                {% for i in data.get('netatmo.outdoor.temperature').get('historical') %}
+                {% for i in data.get('netatmo.outdoor.temperature', {}).get('historical', []) %}
+                    {
+                        value:{{i.value}},
+                        time:new Date("{{i.time}}"),
+                    },
+                {% endfor %}
+            ]
+        },
+        {
+            key:"Power",
+            bar: true,
+            values:[
+                {% for i in power.get('energy.smartmeter.power', {}).get('historical', []) %}
                     {
                         value:{{i.value}},
                         time:new Date("{{i.time}}"),
@@ -157,7 +173,7 @@ function humidity_data(){
         {
             key: "Indoor",
             values:[
-                {% for i in data.get('netatmo.indoor.humidity').get('historical') %}
+                {% for i in data.get('netatmo.indoor.humidity', {}).get('historical', []) %}
                     {
                         value:{{i.value}},
                         time:new Date("{{i.time}}"),
@@ -168,7 +184,7 @@ function humidity_data(){
         {
             key: "Outdoor",
             values:[
-                {% for i in data.get('netatmo.outdoor.humidity').get('historical') %}
+                {% for i in data.get('netatmo.outdoor.humidity', {}).get('historical', []) %}
                     {
                         value:{{i.value}},
                         time:new Date("{{i.time}}"),

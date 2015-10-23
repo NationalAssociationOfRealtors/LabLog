@@ -92,15 +92,17 @@ class LocationWidget(MethodView):
 
     def get(self, location, interface):
         loc = Location(id=location)
-        res = {}
+        aq = {}
+        power = {}
         for l in loc.interfaces:
             n = l._get('interface')._value.get('cls').split(".")[-1]
             if n == interface:
-                res = l.interface.get_long_history(db=g.INFLUX, _from="4w")
-                break
+                aq = l.interface.get_long_history(db=g.INFLUX, _from="7d")
+            if n in ['EnergyGateway', 'HomeEnergyMonitor']:
+                power = l.interface.get_long_history(db=g.INFLUX, _from="7d")
 
-        logging.info(res)
-        return render_template("locations/widgets/{}.html".format(interface), data=res, interface=interface)
+
+        return render_template("locations/widgets/{}.html".format(interface), data=aq, power=power, interface=interface)
 
 locations.add_url_rule("/location", view_func=LocationController.as_view('create_location'))
 locations.add_url_rule("/location/<id>", view_func=LocationController.as_view('location'))
