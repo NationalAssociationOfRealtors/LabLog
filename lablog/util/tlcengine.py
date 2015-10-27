@@ -14,6 +14,6 @@ class TLCEngine(object):
         return res.json()
 
     def vibes(self, zipcode):
-        headers = {'Acccept':'application/json', 'Authorization': 'bearer {}'.format(self.access_token)}
+        headers = {'Accept':'application/json', 'Authorization': 'bearer {}'.format(self.access_token)}
         url = "{}/{}".format(ROOT_URL, "/V2/api/nsmls/basedata/vibes")
         return requests.get(url, headers=headers, params={'zipcode':zipcode}).json()
