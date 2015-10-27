@@ -3,6 +3,7 @@ from flask.views import MethodView
 from passlib.hash import hex_sha1 as hex_sha1
 from lablog.models.client import Client
 from lablog.models.location import Location
+from lablog.util.tlcengine import TLCEngine
 from lablog.app import App
 from lablog import config
 from flask_oauthlib.provider import OAuth2Provider
@@ -16,7 +17,26 @@ dashboard = Blueprint(
 
 class Index(MethodView):
     def get(self):
-        return render_template("index.html", client=Client, location=Location)
+        tlc = TLCEngine(un='ccote@realtors.org', pw='abudabu1')
+        locs = [l.json() for l in Location.find()]
+        diffs = {}
+        for l in locs:
+            vibes = tlc.vibes(l['zipcode'])
+            logging.info(vibes)
+            if isinstance(vibes, dict) and vibes.get("VibesData"):
+                l['vibes'] = vibes.get("VibesData")
+                for k,v in vibes.get('VibesData').iteritems():
+                    a = diffs.setdefault(k, {'min':999999, 'max':0})
+                    v = float(v)
+                    if v > a['max']: a['max'] = v
+                    if v < a['min']: a['min'] = v
+
+                largest = {k:(v['max']-v['min']) for k,v in diffs.iteritems()}
+                largest = sorted(largest.items(), cmp=lambda x,y: cmp(x[1], y[1]), reverse=True)
+                logging.info(largest)
+            else:
+                l['vibes'] = {}
+        return render_template("index.html", client=Client, location=Location, locations=locs, largest=largest)
 
 
 class CreateClient(MethodView):

@@ -22,6 +22,30 @@
             </li>
         {% endfor %}
     </ul>
+
+    <h3>True Cost of Living Comparison</a></h3>
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Zipcode</th>
+                {% for k,v in largest[0:5] %}
+                    <th>{{" ".join(k.split("_"))}}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+        {% for l in locations %}
+            <tr>
+                <td>{{l.name}}</td>
+                <td>{{l.zipcode}}</td>
+                {% for k,v in largest[0:5] %}
+                    <td>${{l.vibes.get(k)}}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 <script type="text/javascript">
     try{
