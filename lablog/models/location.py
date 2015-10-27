@@ -14,6 +14,7 @@ class Location(orm.Document):
     geo = field.Geo()
     property_id = field.Char()
     interfaces = orm.List(type=LocationInterface)
+    zipcode = field.Char()
 
     def get_interface_data(self, db, _from="2d"):
         vals = {}
