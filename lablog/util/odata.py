@@ -58,6 +58,9 @@ class OData(object):
             params=self.params,
             headers={'accept':'application/json'}
         )
-        j = res.json()
-        if j.get('error'): raise Exception(message=j.get('error'))
-        return self.parse_dates(j.get('d', {}).get('results', j['d']))
+        try:
+            j = res.json()
+            if j.get('error'): raise Exception(j.get('error'))
+            return self.parse_dates(j.get('d', {}).get('results', j['d']))
+        except Exception as e:
+            raise Exception(res.content)

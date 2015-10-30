@@ -83,13 +83,13 @@ class LocationProperty(MethodView):
         tlc = TLCEngine(un='ccote@realtors.org', pw='abudabu1')
         logging.info(tlc.auth)
         vibes = tlc.vibes(loc.zipcode)
-        od = OData("http://connectmls-api.mredllc.com/RESO/Odata", "plugfest1", "plugfest2015")
-        res = od.entity("Property").filter("PostalCode eq '60626'").orderby("ListingContractDate desc").top("5").get()
-        for i in res:
-            logging.info(i.get('ListingId'))
-        od = OData("http://connectmls-api.mredllc.com/RESO/Odata", "plugfest1", "plugfest2015")
-        res = od.entity("Property").id(loc.property_id)#filter("PostalCode eq '60626'").orderby("ListingContractDate desc").top("1").get()
-        logging.info(res)
+        try:
+            od = OData("http://connectmls-api.mredllc.com/RESO/Odata", "plugfest1", "plugfest2015")
+            res = od.entity("Property").id(loc.property_id)#filter("PostalCode eq '60626'").orderby("ListingContractDate desc").top("1").get()
+            logging.info(res)
+        except Exception as e:
+            logging.error(e)
+            res = {}
         return render_template("locations/property.html", property=res, loc=loc, Location=Location, vibes=vibes['VibesData'])
 
 class LocationWidget(MethodView):
