@@ -19,7 +19,12 @@ location = Blueprint(
 @location.route("/list", methods=["GET"])
 #@oauth.require_oauth('analytics')
 def get_locations():
-    locs = [loc.json() for loc in Location.find()]
+    locs = []
+    for loc in Location.find():
+        j = loc.json()
+        net = loc.get_interface('NetAtmo')
+        j['current'] = net.get_current(g.INFLUX) if net else {}
+        locs.append(j)
     return jsonify(locs)
 
 @location.route("/<location_id>", methods=["GET"])

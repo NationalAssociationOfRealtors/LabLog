@@ -69,6 +69,15 @@ class Interface(orm.Document):
 
         return ret
 
+    def get_current(self, db):
+        current = "SELECT LAST(value) as value FROM \"lablog\".\"realtime\"./{}.*/ WHERE interface='{}'".format(self.measurement_key, self._id)
+        res = db.query(current)
+        ret = {}
+        for t,g in res.items():
+            ret.setdefault(t[0], {})
+            ret[t[0]].update({'current': [p for p in g]})
+        return ret
+
     def get_values(self, db, _from):
         historical = "SELECT value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)
         previous = "SELECT FIRST(value) as value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}'".format(self.measurement_key, _from, self._id)

@@ -23,3 +23,13 @@ class Location(orm.Document):
             vals[inter.__class__.__name__] = inter.get_values(db, _from)
 
         return vals
+
+    def get_interface(self, interface):
+        inte = None
+        for i in self.interfaces:
+            inter = i._get('interface')._value.get('cls').split(".")[-1]
+            self.logger.info(inter)
+            if inter == interface:
+                inte = i.interface
+                break
+        return inte
