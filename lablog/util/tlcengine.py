@@ -1,4 +1,5 @@
 import requests
+import logging
 
 ROOT_URL =  "http://uatapiv2.tlcengine.com"
 
@@ -16,4 +17,6 @@ class TLCEngine(object):
     def vibes(self, zipcode):
         headers = {'Accept':'application/json', 'Authorization': 'bearer {}'.format(self.access_token)}
         url = "{}/{}".format(ROOT_URL, "/V2/api/nsmls/basedata/vibes")
-        return requests.get(url, headers=headers, params={'zipcode':zipcode}).json()
+        res = requests.get(url, headers=headers, params={'zipcode':zipcode})
+        logging.info(res.content)
+        return res.json()

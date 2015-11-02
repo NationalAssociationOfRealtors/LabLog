@@ -12,18 +12,18 @@
             <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">                <!-- Indicators -->
                 <ol class="carousel-indicators">
                     <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
-                    {% for i in range(1, property.PhotosCount) %}
+                    {% for i in range(1, loc.mls.PhotosCount) %}
                         <li data-target="#carousel-example-generic" data-slide-to="{{i}}"></li>
                     {% endfor %}
                 </ol>
 
                 <div class="carousel-inner" role="listbox">
                     <div class="item active">
-                        <img src="http://www.mredllc.com/photos/property/{{property.ListingId[-3:]}}/{{property.ListingId}}.jpg" alt="">
+                        <img src="http://www.mredllc.com/photos/property/{{loc.mls.ListingId[-3:]}}/{{loc.mls.ListingId}}.jpg" alt="">
                     </div>
-                    {% for i in range(1, property.PhotosCount) %}
+                    {% for i in range(1, loc.mls.PhotosCount) %}
                         <div class="item">
-                            <img src="http://www.mredllc.com/photos/property/{{property.ListingId[-3:]}}/{{property.ListingId}}_{{i}}.jpg" alt="">
+                            <img src="http://www.mredllc.com/photos/property/{{loc.mls.ListingId[-3:]}}/{{loc.mls.ListingId}}_{{i}}.jpg" alt="">
                         </div>
                     {% endfor %}
                 </div>
@@ -39,9 +39,9 @@
                 </a>
             </div>
             <div class="caption-full">
-                <h4 class="pull-right">{{"${:,.2f}".format(property.ListPrice)}}</h4>
-                <h4><a href="#">{{property.StreetNumber}} {{property.StreetName}}</a></h4>
-                <p>{{property.PublicRemarks}}</p>
+                <h4 class="pull-right">{{"${:,.2f}".format(loc.mls.ListPrice)}}</h4>
+                <h4><a href="#">{{loc.mls.StreetNumber}} {{loc.mls.StreetName}}</a></h4>
+                <p>{{loc.mls.PublicRemarks}}</p>
             </div>
         </div>
         <div>
@@ -59,7 +59,7 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="attributes">
                     <dl class="dl-horizontal">
-                    {% for k,v in property.iteritems() %}
+                    {% for k,v in loc.mls.iteritems() %}
                         <dt>{{k}}</dt>
                         <dd>{{v}}</dd>
                     {% endfor %}
@@ -67,8 +67,8 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="tlc">
                     <dl class="dl-horizontal">
-                    {% for k,v in vibes.iteritems() %}
-                        <dt>{{" ".join(k.split("_"))}}</dt>
+                    {% for k,v in loc.tlc.iteritems() %}
+                        <dt>{{k}}</dt>
                         <dd>${{v}}</dd>
                     {% endfor %}
                     </dl>

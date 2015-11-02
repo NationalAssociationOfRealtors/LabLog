@@ -8,8 +8,6 @@ from lablog.interfaces.sensornode import Node
 from lablog.interfaces.presence import Presence
 from lablog.interfaces.ups import UPS
 from lablog.interfaces.wunderground import Wunderground
-from lablog.util.odata import OData
-from lablog.util.tlcengine import TLCEngine
 from lablog import config
 from humongolus import Field
 import logging
@@ -80,17 +78,7 @@ class LocationProperty(MethodView):
 
     def get(self, location):
         loc = Location(id=location)
-        tlc = TLCEngine(un='ccote@realtors.org', pw='abudabu1')
-        logging.info(tlc.auth)
-        vibes = tlc.vibes(loc.zipcode)
-        try:
-            od = OData("http://connectmls-api.mredllc.com/RESO/Odata", "plugfest1", "plugfest2015")
-            res = od.entity("Property").id(loc.property_id)#filter("PostalCode eq '60626'").orderby("ListingContractDate desc").top("1").get()
-            logging.info(res)
-        except Exception as e:
-            logging.error(e)
-            res = {}
-        return render_template("locations/property.html", property=res, loc=loc, Location=Location, vibes=vibes['VibesData'])
+        return render_template("locations/property.html", loc=loc, Location=Location)
 
 class LocationWidget(MethodView):
 

@@ -30,17 +30,17 @@
                 <th>Name</th>
                 <th>Zipcode</th>
                 {% for k,v in largest[0:5] %}
-                    <th>{{" ".join(k.split("_"))}}</th>
+                    <th>{{k}}</th>
                 {% endfor %}
             </tr>
         </thead>
         <tbody>
-        {% for l in locations %}
+        {% for l in location.find() %}
             <tr>
                 <td>{{l.name}}</td>
                 <td>{{l.zipcode}}</td>
                 {% for k,v in largest[0:5] %}
-                    <td>${{l.vibes.get(k)}}</td>
+                    <td>${{l.tlc.get(k)}}</td>
                 {% endfor %}
             </tr>
         {% endfor %}

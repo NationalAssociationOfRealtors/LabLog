@@ -73,3 +73,10 @@ NETATMO_CLIENT_ID = os.environ.get('NETATMO_CLIENT_ID')
 NETATMO_CLIENT_SECRET = os.environ.get('NETATMO_CLIENT_SECRET')
 NETATMO_USERNAME = os.environ.get('NETATMO_USERNAME')
 NETATMO_PASSWORD = os.environ.get('NETATMO_PASSWORD')
+
+TLC_UN = os.environ.get('TLC_UN')
+TLC_PASSWORD = os.environ.get('TLC_PASSWORD')
+
+MLS_ODATA_URL = "http://connectmls-api.mredllc.com/RESO/Odata"
+MLS_ODATA_UN = os.environ.get('MLS_ODATA_UN')
+MLS_ODATA_PASSWORD = os.environ.get('MLS_ODATA_PASSWORD')

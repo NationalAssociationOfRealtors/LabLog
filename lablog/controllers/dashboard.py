@@ -15,28 +15,27 @@ dashboard = Blueprint(
     template_folder=config.TEMPLATES,
 )
 
+def compare_tlc():
+    diffs = {}
+    for l in Location.find():
+        vibes = l.tlc
+        if isinstance(vibes, dict):
+            for k,v in vibes.iteritems():
+                a = diffs.setdefault(k, {'min':999999, 'max':0})
+                v = float(v)
+                if v > a['max']: a['max'] = v
+                if v < a['min']: a['min'] = v
+
+            largest = {k:(v['max']-v['min']) for k,v in diffs.iteritems()}
+            largest = sorted(largest.items(), cmp=lambda x,y: cmp(x[1], y[1]), reverse=True)
+
+    return largest
+
+
 class Index(MethodView):
     def get(self):
-        tlc = TLCEngine(un='ccote@realtors.org', pw='abudabu1')
-        locs = [l.json() for l in Location.find()]
-        diffs = {}
-        for l in locs:
-            vibes = tlc.vibes(l['zipcode'])
-            logging.info(vibes)
-            if isinstance(vibes, dict) and vibes.get("VibesData"):
-                l['vibes'] = vibes.get("VibesData")
-                for k,v in vibes.get('VibesData').iteritems():
-                    a = diffs.setdefault(k, {'min':999999, 'max':0})
-                    v = float(v)
-                    if v > a['max']: a['max'] = v
-                    if v < a['min']: a['min'] = v
-
-                largest = {k:(v['max']-v['min']) for k,v in diffs.iteritems()}
-                largest = sorted(largest.items(), cmp=lambda x,y: cmp(x[1], y[1]), reverse=True)
-                logging.info(largest)
-            else:
-                l['vibes'] = {}
-        return render_template("index.html", client=Client, location=Location, locations=locs, largest=largest)
+        largest = compare_tlc()
+        return render_template("index.html", client=Client, location=Location, largest=largest)
 
 
 class CreateClient(MethodView):
