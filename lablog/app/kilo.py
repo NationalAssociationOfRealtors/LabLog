@@ -68,9 +68,8 @@ class Kilo(WebSocketApplication):
     def init_consumers(self):
         current = self.ws.handler.active_client
         node_q = Queue(
-            name="node-{}-{}".format(current.address[0], current.address[1]),
-            exchange=messages.Exchanges.node,
-            routing_key="node.*",
+            name="client-{}-{}".format(current.address[0], current.address[1]),
+            exchange=messages.Exchanges.everything,
             exclusive=True,
         )
         node_consumer = messages.Consumer(self.MQ, [node_q], self.node_stream)

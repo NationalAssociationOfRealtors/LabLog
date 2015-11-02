@@ -101,9 +101,9 @@ class LocationWidget(MethodView):
         for l in loc.interfaces:
             n = l._get('interface')._value.get('cls').split(".")[-1]
             if n == interface:
-                aq = l.interface.get_long_history(db=g.INFLUX, _from="7d")
+                aq = l.interface.get_long_history(db=g.INFLUX, _from="12d")
             if n in ['EnergyGateway', 'HomeEnergyMonitor'] and not power:
-                power = l.interface.get_long_history(db=g.INFLUX, _from="7d")
+                power = l.interface.get_long_history(db=g.INFLUX, _from="12d")
 
 
         return render_template("locations/widgets/{}.html".format(interface), data=aq, power=power, interface=interface)
