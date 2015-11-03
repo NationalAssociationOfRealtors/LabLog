@@ -24,7 +24,7 @@ class Location(orm.Document):
     zipcode = field.Char()
     meta = LocationMeta()
 
-    def get_interface_data(self, db, _from="2d"):
+    def get_interface_data(self, db, _from="7d"):
         vals = {}
         for i in self.interfaces:
             inter = i.interface
