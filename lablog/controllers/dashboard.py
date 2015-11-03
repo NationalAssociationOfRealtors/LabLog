@@ -21,8 +21,9 @@ def compare_tlc():
         vibes = l.tlc
         if isinstance(vibes, dict):
             for k,v in vibes.iteritems():
+                if not isinstance(v,float): continue
                 a = diffs.setdefault(k, {'min':999999, 'max':0})
-                v = float(v)
+
                 if v > a['max']: a['max'] = v
                 if v < a['min']: a['min'] = v
 
