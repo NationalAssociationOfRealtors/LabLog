@@ -3,6 +3,7 @@ import humongolus.field as field
 from lablog.util.tlcengine import TLCEngine
 from lablog.util.odata import OData
 from lablog import config
+import logging
 
 class LocationMeta(orm.EmbeddedDocument):
     mls = orm.Field()
@@ -57,7 +58,14 @@ class Location(orm.Document):
         if not self.meta.tlc:
             tlc = TLCEngine(un=config.TLC_UN, pw=config.TLC_PASSWORD)
             vibes = tlc.vibes(self.zipcode)
-            tlc = {" ".join(k.split("_")):float(v) for k,v in vibes.get('VibesData').iteritems()}
-            self.meta.tlc = tlc
+            ret={}
+            for k,v in vibes.get('VibesData').items():
+                try:
+                    ret[k] = float(v)
+                except Exception as e:
+                    ret[k] = v
+                    logging.exception(e)
+
+            self.meta.tlc = ret
             self.save()
         return self.meta.tlc
