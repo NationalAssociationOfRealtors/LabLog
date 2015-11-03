@@ -2,50 +2,56 @@
 
 {% block title %}Dashboard{% endblock %}
 
-{% block content %}
-<div class="jumbotron">
-    <h1>Welcome {{current_user.name}}</h1>
-    <h2>Come see the <a href="/fe">dashboard</a></h2>
-    <h3>Clients</h3>
-    <ul>
-        {% for c in client.find() %}
-            <li>{{c.name}}: {{c._id}}</li>
-        {% endfor %}
-    </ul>
-    <h3>Locations - <a class='create' href="{{url_for('locations.create_location')}}">Create</a></h3>
-    <ul>
-        {% for c in location.find() %}
-            <li>
-                {{c.name}}
-                <a href="{{url_for('locations.location', id=c._id)}}">Edit</a>&nbsp;
-                <a href="{{url_for('locations.location_property', location=c._id)}}">Listing</a>
-            </li>
-        {% endfor %}
-    </ul>
+{% block body_class %}index{% endblock %}
 
-    <h3>True Cost of Living Comparison</a></h3>
-    <table class='table'>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Zipcode</th>
-                {% for k,v in largest[0:5] %}
-                    <th>{{k}}</th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-        {% for l in location.find() %}
-            <tr>
-                <td>{{l.name}}</td>
-                <td>{{l.zipcode}}</td>
-                {% for k,v in largest[0:5] %}
-                    <td>${{l.tlc.get(k)}}</td>
-                {% endfor %}
-            </tr>
+{% block content %}
+<div class="container">
+    <div class="row">
+        <h3>Locations</h3>
+        {% for loc in location.find() %}
+            <div class="col-sm-6 col-md-4">
+                <div class="thumbnail">
+                    <img src="http://www.mredllc.com/photos/property/{{loc.property_id[-3:]}}/{{loc.property_id}}.jpg" alt="">
+                    <div class="caption">
+                        <h4 class="pull-right">{{"${:,.2f}".format(loc.mls.ListPrice)}}</h4>
+                        <h4><a href="#">{{loc.mls.StreetNumber}} {{loc.mls.StreetName}}</a></h4>
+                        <p>{{loc.mls.PublicRemarks}}</p>
+                        <div class="btn-group">
+                            <a href="{{url_for('locations.location_property', location=loc._id)}}" class="btn btn-primary" role="button">View</a>
+                            <a href="{{url_for('locations.location', id=loc._id)}}" class="btn btn-warning" role="button">Edit</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-        </tbody>
-    </table>
+    </div>
+    <div class="row">
+        <h3>True Cost of Living Comparison</a></h3>
+        <div class="col-md-12">
+            <table class='table tablesorter' id='tlc'>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Zipcode</th>
+                        {% for k,v in largest[0:5] %}
+                            <th>{{k}}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                {% for l in location.find() %}
+                    <tr>
+                        <td>{{l.mls.StreetNumber}} {{l.mls.StreetName}}</td>
+                        <td>{{l.zipcode}}</td>
+                        {% for k,v in largest[0:5] %}
+                            <td>${{l.tlc.get(k)}}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 <script type="text/javascript">
     try{
@@ -56,5 +62,9 @@
     }catch(e){
         console.log(e);
     }
+    $(document).ready(function() {
+        $("#tlc").tablesorter();
+    }
+);
 </script>
 {% endblock %}

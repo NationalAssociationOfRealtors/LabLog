@@ -5,7 +5,7 @@
 {% block title %}Property{% endblock %}
 
 {% block content %}
-<h2>{{loc.name}}</h2>
+<h2>{{loc.mls.StreetNumber}} {{loc.mls.StreetName}}</h2>
 <div class="row">
     <div class="col-md-9">
         <div class="thumbnail">
@@ -53,9 +53,7 @@
 
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane fade in active" id="rosetta">
-                    <div class="embed-responsive embed-responsive-4by3">
-                        <iframe class="embed-responsive-item" src="/location/{{loc._id}}/interface/NetAtmo"></iframe>
-                    </div>
+                    <iframe class="rosetta-home-widget" src="/location/{{loc._id}}/interface/NetAtmo"></iframe>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="attributes">
                     <dl class="dl-horizontal">
@@ -83,7 +81,7 @@
             <div class="thumbnail">
                 <img src="http://www.mredllc.com/photos/property/{{l.property_id[-3:]}}/{{l.property_id}}.jpg" alt="">
                 <div class="caption">
-                    <h4>{{l.name}}</h4>
+                    <h4>{{loc.mls.StreetNumber}} {{loc.mls.StreetName}}</h4>
                     <p><a href="{{url_for('locations.location_property', location=l._id)}}" class="btn btn-primary" role="button">View</a></p>
                 </div>
             </div>

@@ -11,16 +11,17 @@
         <script src="/static/vendor/novus-nvd3-7ebd54c/nv.d3.min.js"></script>
         <script src="/static/js/vendor/jquery.pjax.js"></script>
         <script src="/static/vendor/jquery-ui-1.11.2.custom/jquery-ui.min.js"></script>
+        <script src="/static/js/vendor/jquery.tablesorter.min.js"></script>
         <link rel="stylesheet" href="/static/vendor/jquery-ui-1.11.2.custom/jquery-ui.min.css">
         <link rel="stylesheet" href="/static/vendor/novus-nvd3-7ebd54c/nv.d3.min.css">
         <link rel="stylesheet" href="/static/css/app.css">
-        <script href="/static/js/app.js"></script>
+        <script src="/static/js/app.js"></script>
         {% block head %}{% endblock %}
     </head>
     <body class="{% block body_class %}{% endblock %}">
     {% block body %}
         {% block menu %}
-        <nav class="navbar navbar-default">
+        <nav class="navbar navbar-default navbar-fixed-top">
             {% block menu_items %}
             <div class="container-fluid">
                 <div class="navbar-header">
@@ -30,7 +31,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">
+                    <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
                         <img class="brand" src="{{url_for('static', filename='img/crt_logo.svg')}}" />
                     </a>
                 </div>
@@ -38,14 +39,9 @@
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">
-                        <li><a href="{{ url_for('dashboard.index') }}">Dashboard <span class="sr-only">(current)</span></a></li>
+                        <li><a href="/fe">Dashboard</a></li>
+                        <li><a href="/dataflow">Data Flow</a></li>
                     </ul>
-                    <form class="navbar-form navbar-left" role="search">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Search">
-                        </div>
-                        <button type="submit" class="btn btn-default">Submit</button>
-                    </form>
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
@@ -65,20 +61,20 @@
             </nav>
             {% endblock %}
             {% block container %}
-            <div class='container'>
-                <div class='content'>
-                    <div id="notifications">
-                        {% with messages = get_flashed_messages(with_categories=True) %}
-                            {% if messages %}
-                                {% for message in messages %}
-                                    {% include "widgets/notification.html" %}
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-                    </div>
+            <div class='container main'>
+                <div id="notifications" class="row notifications">
+                    {% with messages = get_flashed_messages(with_categories=True) %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                {% include "widgets/notification.html" %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <div class='content row'>
                     {% block content %}{% endblock %}
                 </div>
-                <div class='footer'>
+                <div class='footer row'>
                     {% block footer %}{% endblock %}
                 </div>
             </div>
