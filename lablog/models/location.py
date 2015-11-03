@@ -55,17 +55,17 @@ class Location(orm.Document):
 
     @property
     def tlc(self):
-        if not self.meta.tlc:
+        if not self.meta.tlc or self.zipcode != self.meta.tlc.get('msa', {}).get('zip'):
             tlc = TLCEngine(un=config.TLC_UN, pw=config.TLC_PASSWORD)
             vibes = tlc.vibes(self.zipcode)
-            ret={}
+            ret = {'msa':{'zip':self.zipcode}, 'vibes':{}}
             for k,v in vibes.get('VibesData').items():
+                d = ret['msa'] if k.lower().startswith('msa') else ret['vibes']
                 try:
-                    ret[k] = float(v)
+                    d[k] = float(v)
                 except Exception as e:
-                    ret[k] = v
-                    logging.exception(e)
+                    d[k] = v
 
             self.meta.tlc = ret
             self.save()
-        return self.meta.tlc
+        return self.meta.tlc['vibes']
