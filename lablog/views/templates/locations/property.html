@@ -46,22 +46,22 @@
         </div>
         <div>
             <ul id="tabs" class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#rosetta" aria-controls="rosetta" role="tab" data-toggle="tab">Rosetta Home</a></li>
-                <li role="presentation"><a href="#attributes" aria-controls="attributes" role="tab" data-toggle="tab">Listing Details</a></li>
+                <li role="presentation" class="active"><a href="#attributes" aria-controls="attributes" role="tab" data-toggle="tab">Listing Details</a></li>
+                <li role="presentation"><a href="#rosetta" aria-controls="rosetta" role="tab" data-toggle="tab">Rosetta Home</a></li>
                 <li role="presentation"><a href="#tlc" aria-controls="tlc" role="tab" data-toggle="tab">True Living Cost</a></li>
             </ul>
 
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane fade in active" id="rosetta">
-                    <iframe class="rosetta-home-widget" src="/location/{{loc._id}}/interface/NetAtmo"></iframe>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="attributes">
+                <div role="tabpanel" class="tab-pane fade in active" id="attributes">
                     <dl class="dl-horizontal">
                     {% for k,v in loc.mls.iteritems() %}
                         <dt>{{k}}</dt>
                         <dd>{{v}}</dd>
                     {% endfor %}
                     </dl>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="rosetta">
+                    <iframe class="rosetta-home-widget" src="/location/{{loc._id}}/interface/NetAtmo"></iframe>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="tlc">
                     <dl class="dl-horizontal">
