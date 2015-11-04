@@ -5,7 +5,10 @@
 {% block title %}Property{% endblock %}
 
 {% block content %}
-<h2>{{loc.mls.StreetNumber}} {{loc.mls.StreetName}}</h2>
+<h2>
+    {{loc.mls.StreetNumber}} {{loc.mls.StreetName}}
+    <a href="{{url_for('locations.location', id=loc._id)}}" class="btn btn-primary" role="button">Edit</a>
+</h2>
 <div class="row">
     <div class="col-md-9">
         <div class="thumbnail">
