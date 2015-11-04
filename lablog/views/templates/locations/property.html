@@ -81,7 +81,7 @@
             <div class="thumbnail">
                 <img src="http://www.mredllc.com/photos/property/{{l.property_id[-3:]}}/{{l.property_id}}.jpg" alt="">
                 <div class="caption">
-                    <h4>{{loc.mls.StreetNumber}} {{loc.mls.StreetName}}</h4>
+                    <h4>{{l.mls.StreetNumber}} {{l.mls.StreetName}}</h4>
                     <p><a href="{{url_for('locations.location_property', location=l._id)}}" class="btn btn-primary" role="button">View</a></p>
                 </div>
             </div>
