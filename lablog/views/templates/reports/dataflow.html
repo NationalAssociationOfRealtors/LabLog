@@ -46,7 +46,8 @@
         var colors = {
             'energy': '#edbd00',
             'weather': '#367d85',
-            'air': '#97ba4c',
+            'node': '#97ba4c',
+            'netatmo': '#97ba4c',
             'presence': '#f5662b',
             'fallback': '#9f9fa3'
         };
@@ -64,14 +65,16 @@
                 .nodeWidth(24)
                 .nodePadding(3)
                 .spread(true)
-                .iterations(1)
+                .iterations(25)
                 .draw(json);
 
             function label(node) {
                 return node.name.replace(/\s*\(.*?\)$/, '');
             }
+
             function color(node, depth) {
-                var id = node.id.split("_")[0];
+                var s = node.id.split(".")
+                var id = s[1];
                 if (colors[id]) {
                     return colors[id];
                 } else if (depth > 0 && node.targetLinks && node.targetLinks.length == 1) {

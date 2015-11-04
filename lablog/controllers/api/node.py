@@ -36,6 +36,8 @@ def get_nodes():
 def node_sensors(node_id):
     n = Node.find_one({'id':node_id})
     n.go(g.INFLUX, g.MQ, data=request.data)
+    n._last_run = datetime.utcnow()
+    n.save()
     return jsonify({'success':True})
 
 @node.route("/<node_id>/sensors", methods=["GET"])
