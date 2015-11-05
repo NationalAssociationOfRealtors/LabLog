@@ -28,7 +28,27 @@ def get_node_index(l, id):
     return None
 
 def get_indexes_startswith(l, key):
-    return [i for i, obj in enumerate(l) if obj.get('id').startswith(key)]
+    ret = []
+    for i, obj in enumerate(l):
+        for s in obj.get('startswith', []):
+            if s.startswith(key): ret.append(i)
+    return ret
+
+def add_link(links, link):
+    for i in links:
+        if i['source'] == link['source'] and i['target'] == link['target']: return
+
+    return links.append(link)
+
+def add_node(nodes, node, startswith=None):
+    for i in nodes:
+        if i['id'] == node['id']:
+            if startswith:
+                s = i.setdefault('startswith', [])
+                s.append(startswith)
+            return
+    return nodes.append(node)
+
 
 class DataFlowView(MethodView):
 
@@ -47,27 +67,28 @@ class DataFlow(MethodView):
         res = g.INFLUX.query("SHOW MEASUREMENTS")
         measurements = [i for i in res.items()[0][1]]
         for f in final:
-            fnodes.append({
+            add_node(fnodes, {
                 'name':f,
                 'id':"final.{}".format(f),
                 'type':'final',
             })
         for m in measurements:
-            fnodes.append({
+            add_node(fnodes, {
                 'name':m['name'].split(".")[-1],
-                'id':"data.{}".format(m['name']),
+                'id':"data.{}".format(m['name'].split(".")[-1]),
                 'type':'data',
-            })
+                'startswith':[m['name']],
+            }, startswith=m['name'])
 
         for i in interfaces:
-            fnodes.append({
+            add_node(fnodes, {
                 'name':i.__name__,
                 'id':"interface.{}.{}".format(i.exchange.name, i.__name__),
                 'type':'interface',
             })
 
         for e in exchanges:
-            fnodes.append({
+            add_node(fnodes, {
                 'name':e.name,
                 'id':"exchange.{}".format(e.name),
                 'type':'exchange',
@@ -75,12 +96,12 @@ class DataFlow(MethodView):
 
         ev_id = get_node_index(fnodes, 'exchange.everything')
         for loc in locations:
-            fnodes.append({
+            add_node(fnodes, {
                 'name':loc.name,
                 'id':str(loc._id),
                 'type':'location'
             })
-            links.append({
+            add_link(links,{
                 'source':len(fnodes)-1,
                 'target':get_node_index(fnodes, 'interface.presence.Presence'),
                 'value':.01
@@ -90,87 +111,83 @@ class DataFlow(MethodView):
                 e_name = i.interface.exchange.name
                 i_index = get_node_index(fnodes, "interface.{}.{}".format(e_name, i.interface.__class__.__name__))
                 e_id = get_node_index(fnodes, "exchange.{}".format(e_name))
-                links.append({
+                add_link(links,{
                     'source':len(fnodes)-1,
                     'target':i_index,
                     'value':.01,
                 })
-                data_points = get_indexes_startswith(fnodes, "data.{}".format(i.interface.measurement_key))
+                data_points = get_indexes_startswith(fnodes, i.interface.measurement_key)
                 for dp in data_points:
-                    links.append({
+                    add_link(links,{
                         'source':i_index,
                         'target':dp,
                         'value':.01
                     })
-                    links.append({
+                    add_link(links,{
                         'source':dp,
                         'target':e_id,
                         'value':.01
                     })
-                    links.append({
+                    add_link(links,{
                         'source':dp,
                         'target':ev_id,
                         'value':.01
                     })
 
-        links.append({
+        add_link(links,{
             'source':get_node_index(fnodes, 'exchange.energy'),
             'target':get_node_index(fnodes, 'final.Clients'),
             'value':.01
         })
-        links.append({
+        add_link(links,{
             'source':get_node_index(fnodes, 'exchange.presence'),
             'target':get_node_index(fnodes, 'final.Clients'),
             'value':.01
         })
-        links.append({
+        add_link(links,{
             'source':get_node_index(fnodes, 'exchange.node'),
             'target':get_node_index(fnodes, 'final.Clients'),
             'value':.01
         })
-        links.append({
+        add_link(links,{
             'source':get_node_index(fnodes, 'exchange.weather'),
             'target':get_node_index(fnodes, 'final.Clients'),
             'value':.01
         })
-        links.append({
+        add_link(links,{
             'source':get_node_index(fnodes, 'exchange.everything'),
             'target':get_node_index(fnodes, 'final.Triggers'),
             'value':.01
         })
-        links.append({
+        add_link(links,{
             'source':get_node_index(fnodes, 'exchange.everything'),
             'target':get_node_index(fnodes, 'final.Federation'),
             'value':.01
         })
         io = get_node_index(fnodes, 'data.inoffice')
         if not io:
-            fnodes.append({
+            add_node(fnodes, {
                 'name':'inoffice',
                 'id':'data.inoffice',
                 'type':'data'
             })
             io = len(fnodes)-1
 
-        links.append({
+        add_link(links,{
             'source':get_node_index(fnodes, 'interface.presence.Presence'),
             'target':io,
             'value':.01
         })
-        links.append({
+        add_link(links,{
             'source':io,
             'target':get_node_index(fnodes, 'exchange.presence'),
             'value':.01
         })
-        links.append({
+        add_link(links,{
             'source':io,
             'target':ev_id,
             'value':.01
         })
-
-
-        logging.info(links)
-
         return jsonify({'nodes':fnodes, 'links':links})
 
 reports.add_url_rule("/dataflow", view_func=DataFlowView.as_view('dataflow'))
