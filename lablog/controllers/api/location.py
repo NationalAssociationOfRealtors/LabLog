@@ -17,7 +17,7 @@ location = Blueprint(
 )
 
 @location.route("/list", methods=["GET"])
-#@oauth.require_oauth('analytics')
+@oauth.require_oauth('analytics')
 def get_locations():
     locs = []
     for loc in Location.find():
@@ -28,7 +28,7 @@ def get_locations():
     return jsonify(locs)
 
 @location.route("/<location_id>", methods=["GET"])
-#@oauth.require_oauth('analytics')
+@oauth.require_oauth('analytics')
 def location_data(location_id):
     loc = Location(id=location_id)
     data = loc.get_interface_data(g.INFLUX)

@@ -27,18 +27,21 @@ def healthcheck(app, env):
 def create_app():
     logging.info("Initializing")
     _app = App()
+    ### Require Auth for Web App controllers ###
     dashboard.before_request(_app.user_logged_in)
     facebook.before_request(_app.user_logged_in)
     locations.before_request(_app.user_logged_in)
+    ### Web App Controllers ###
     _app.register_blueprint(dashboard)
     _app.register_blueprint(auth)
     _app.register_blueprint(facebook)
     _app.register_blueprint(hc)
-    _app.register_blueprint(lab)
-    _app.register_blueprint(node)
     _app.register_blueprint(reports)
     _app.register_blueprint(locations)
+    ### API Controllers (OAuth protected)###
     _app.register_blueprint(location)
+    _app.register_blueprint(lab)
+    _app.register_blueprint(node)
     def app(env, start_response):
         #healthcheck(_app, env)
         return _app(env, start_response)
