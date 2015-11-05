@@ -86,7 +86,7 @@ class App(Flask):
     def user_logged_in(self):
         logging.info(request.path)
         if not current_user.is_authenticated():
-            return redirect(url_for("auth.login", next=request.path, _external=True))
+            return redirect(url_for("auth.login", next=request.path, _external=True, _scheme="https"))
 
     def init_pjax(self):
         PJAX(self)
