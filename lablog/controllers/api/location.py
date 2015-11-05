@@ -5,6 +5,7 @@ from lablog import config
 from lablog.util.jsontools import jsonify
 from lablog import messages
 from lablog.models.location import Location
+from lablog.controllers.auth import oauth
 from datetime import datetime
 import logging
 import json

@@ -12,11 +12,11 @@
     }
 </style>
 <div id="charts">
-    <h4>CO2</h4>
+    <h4>CO<sub>2</sub>(ppm)</h4>
     <div id="co2">
         <svg></svg>
     </div>
-    <h4>Temperature</h4>
+    <h4>Temperature & Power</h4>
     <div id="temperature">
         <svg></svg>
     </div>
@@ -46,6 +46,11 @@ nv.addGraph(function() {
         .y(function(d) { return d.value.toFixed(2) })
         .tooltips(true)        //Don't show tooltips
         .transitionDuration(350)
+        .forceY([0, 1000])
+        .color(function(d){
+            if(d.value > 500) return "#bc5c55";
+            return "#547cbe";
+        })
 
     chart.xAxis
         .tickValues(ticks)
@@ -67,6 +72,7 @@ nv.addGraph(function() {
     var chart = nv.models.linePlusBarChart()
         .x(function(d) { return d.time })    //Specify the data accessors.
         .y(function(d) { return parseFloat(d.value.toFixed(2)) })
+        .showLegend(false)
 
     chart.xAxis
         .tickValues(ticks)
@@ -91,11 +97,11 @@ nv.addGraph(function() {
 });
 
 nv.addGraph(function() {
-    var chart = nv.models.lineChart()
-        .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
+    var chart = nv.models.multiBarChart()
         .transitionDuration(350)  //how fast do you want the lines to transition?
         .x(function(d) { return d.time })    //Specify the data accessors.
         .y(function(d) { return d.value.toFixed(2) })
+        .showControls(false);
 
     chart.xAxis
         .tickValues(ticks)

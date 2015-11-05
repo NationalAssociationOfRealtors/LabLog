@@ -19,4 +19,6 @@ class TLCEngine(object):
         url = "{}/{}".format(ROOT_URL, "/V2/api/nsmls/basedata/vibes")
         res = requests.get(url, headers=headers, params={'zipcode':zipcode})
         logging.info(res.content)
-        return res.json()
+        j = res.json()
+        if isinstance(j, list) and j[0].get('ErrorMessage'): raise Exception(j[0]['ErrorMessage'])
+        return j
