@@ -43,6 +43,7 @@ class Location(orm.Document):
                 break
         return inte
 
+
     @property
     def mls(self):
         if not self.meta.mls or self.property_id != self.meta.mls.get('ListingId'):
@@ -73,5 +74,5 @@ class Location(orm.Document):
             except Exception as e:
                 logging.error(e)
                 self.meta.tlc = ret
-                
+
         return self.meta.tlc['vibes']

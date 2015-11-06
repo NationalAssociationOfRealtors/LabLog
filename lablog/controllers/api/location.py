@@ -34,3 +34,19 @@ def location_data(location_id):
     loc = Location(id=location_id)
     data = loc.get_interface_data(g.INFLUX)
     return jsonify({'location':loc.json(), 'data':data})
+
+@location.route("/<location_id>/current", methods=["GET"])
+def location_current(location_id):
+    loc = Location(id=location_id)
+    ret = {}
+    for i in loc.interfaces:
+        inter = i._get('interface')._value.get('cls').split(".")[-1]
+        if inter == "NetAtmo":
+            r = i.interface.get_current(g.INFLUX)
+            for k,v in r.iteritems():
+                if k in ['netatmo.indoor.temperature', 'netatmo.indoor.humidity', 'netatmo.indoor.co2']:
+                    ret[k.split(".")[-1]] = v['current'][0]['value']
+            logging.info(ret)
+            break
+
+    return jsonify(ret)
