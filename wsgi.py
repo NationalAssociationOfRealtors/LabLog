@@ -31,6 +31,7 @@ def create_app():
     dashboard.before_request(_app.user_logged_in)
     facebook.before_request(_app.user_logged_in)
     locations.before_request(_app.user_logged_in)
+    reports.before_request(_app.user_logged_in)
     ### Web App Controllers ###
     _app.register_blueprint(dashboard)
     _app.register_blueprint(auth)
