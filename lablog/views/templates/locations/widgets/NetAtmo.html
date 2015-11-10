@@ -142,7 +142,7 @@ function temperature_data(){
             values:[
                 {% for i in data.get('netatmo.indoor.temperature', {}).get('historical', []) %}
                     {
-                        value:{{i.value}},
+                        value:{{(i.value*1.8)+32}},
                         time:new Date("{{i.time}}"),
                     },
                 {% endfor %}
@@ -153,7 +153,7 @@ function temperature_data(){
             values:[
                 {% for i in data.get('netatmo.outdoor.temperature', {}).get('historical', []) %}
                     {
-                        value:{{i.value}},
+                        value:{{(i.value*1.8)+32}},
                         time:new Date("{{i.time}}"),
                     },
                 {% endfor %}
