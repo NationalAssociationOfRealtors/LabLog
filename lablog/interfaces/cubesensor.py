@@ -8,24 +8,32 @@ import logging
 import os
 from lablog import config
 import json
+from rauth import OAuth1Service, OAuth1Session
 
 class CubeSensor(Interface):
     exchange = messages.Exchanges.node
     measurement_key = "cubesensor"
     run_delta = timedelta(seconds=30)
-
-    
     consumer_key = config.CUBESENSOR_CONSUMER_KEY
     consumer_secret = config.CUBESENSOR_CONSUMER_SECRET
+    access_token = config.CUBESENSOR_ACCESS_TOKEN
+    access_token_secret = config.CUBESENSOR_ACCESS_TOKEN_SECRET
 
-    KEYS = ['noisedba', 'noise','temp', 'pressure', 'humidity', 'voc','voc_resistance','battery','light','rssi','shake']
+    KEYS = ['noisedba', 'noise','temp', 'pressure', 'humidity', 'voc', 'voc_resistance', 'battery', 'light', 'rssi', 'shake']
 
     def data(self, data=None):
-        authorization = lablog.util.lnetatmo.ClientAuth()
-        devList = lablog.util.lnetatmo.DeviceList(authorization)
-        payload = devList.getStationsData(device_id=self.mac_address)
-        logging.debug(payload)
-        return payload
+
+        session = OAuth1Session(
+        	consumer_key,
+        	consumer_secret,
+        	access_token,
+        	access_token_secret)
+
+        logging.info("Cube Sensors!")
+        logging.info(session.get('%s/devices/' % RES).json())
+        logging.info(session.get('%s/devices/%s/current' % (RES, device_id)).json())
+
+        return session.get('%s/devices/%s/current' % (RES, device_id)).json()
 
     def point(self, value, namespace, field):
         t = datetime.utcnow()
