@@ -65,3 +65,5 @@ celerybeat-schedule
 /test.py
 /www
 celerybeat.pid
+
+local-docker-compose.yml
