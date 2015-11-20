@@ -8,6 +8,7 @@ from lablog.interfaces.sensornode import Node
 from lablog.interfaces.presence import Presence
 from lablog.interfaces.ups import UPS
 from lablog.interfaces.wunderground import Wunderground
+from lablog.interfaces.comed import RTTP
 from datetime import datetime, timedelta
 from lablog import config
 from humongolus import Field
@@ -21,6 +22,7 @@ interfaces = {
     Node.__name__: Node,
     UPS.__name__: UPS,
     Wunderground.__name__: Wunderground,
+    RTTP.__name__: RTTP,
 }
 
 locations = Blueprint(
