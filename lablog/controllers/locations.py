@@ -8,6 +8,7 @@ from lablog.interfaces.sensornode import Node
 from lablog.interfaces.presence import Presence
 from lablog.interfaces.ups import UPS
 from lablog.interfaces.wunderground import Wunderground
+from datetime import datetime, timedelta
 from lablog import config
 from humongolus import Field
 import logging
@@ -86,12 +87,15 @@ class LocationWidget(MethodView):
         loc = Location(id=location)
         aq = {}
         power = {}
+        last = datetime.utcnow()-timedelta(hours=30)
         for l in loc.interfaces:
             n = l._get('interface')._value.get('cls').split(".")[-1]
             if n == interface:
                 aq = l.interface.get_long_history(db=g.INFLUX, _from="12d")
-            if n in ['EnergyGateway', 'HomeEnergyMonitor'] and not power:
-                power = l.interface.get_long_history(db=g.INFLUX, _from="12d")
+            if n in ['EnergyGateway', 'HomeEnergyMonitor']:
+                if l.interface._last_run > last:
+                    last = l.interface._last_run
+                    power = l.interface.get_long_history(db=g.INFLUX, _from="12d")
 
 
         return render_template("locations/widgets/{}.html".format(interface), data=aq, power=power, interface=interface)
