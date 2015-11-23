@@ -13,6 +13,7 @@ from lablog.interfaces.presence import Presence
 from lablog.interfaces.sensornode import Node
 from lablog.interfaces.ups import UPS
 from lablog.interfaces.wunderground import Wunderground
+from lablog.interfaces.comed import RTTP
 from lablog.messages import Exchanges
 import logging
 
@@ -59,7 +60,7 @@ class DataFlow(MethodView):
 
     def get(self):
         locations = [loc for loc in Location.find()]
-        interfaces = [EnergyGateway, NetAtmo, HomeEnergyMonitor, Presence, Node, UPS, Wunderground]
+        interfaces = [EnergyGateway, NetAtmo, HomeEnergyMonitor, Presence, Node, UPS, Wunderground, RTTP]
         exchanges = [Exchanges.node, Exchanges.energy, Exchanges.weather, Exchanges.presence, Exchanges.everything]
         final = ['Clients', 'Triggers', 'Federation']
         fnodes = []

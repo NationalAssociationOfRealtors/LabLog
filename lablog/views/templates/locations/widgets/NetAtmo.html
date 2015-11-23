@@ -20,6 +20,10 @@
     <div id="temperature">
         <svg></svg>
     </div>
+    <h4>Power & Cost</h4>
+    <div id="cost">
+        <svg></svg>
+    </div>
     <h4>Humidity</h4>
     <div id="humidity">
         <svg></svg>
@@ -87,6 +91,34 @@ nv.addGraph(function() {
 
     d3.select('#temperature svg')
         .datum(temperature_data)
+        .transition()
+        .duration()
+        .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+});
+
+nv.addGraph(function() {
+    var chart = nv.models.linePlusBarChart()
+        .x(function(d) { return d.time })    //Specify the data accessors.
+        .y(function(d) { return parseFloat(d.value.toFixed(2)) })
+        .showLegend(false)
+
+    chart.xAxis
+        .tickValues(ticks)
+        .tickFormat(
+            function(d){
+                return d3.time.format("%m/%d")(new Date(d))
+            }
+        )
+        .rotateLabels(-45)
+
+    //  chart.bars.forceY([0]);
+
+    d3.select('#cost svg')
+        .datum(cost_data)
         .transition()
         .duration()
         .call(chart);
@@ -173,6 +205,35 @@ function temperature_data(){
         }
     ];
 }
+
+function cost_data(){
+    return [
+        {
+            key:"Cost",
+            values:[
+                {% for i in cost.get('energy.utility.price', {}).get('historical', []) %}
+                    {
+                        value:{{i.value}},
+                        time:new Date("{{i.time}}"),
+                    },
+                {% endfor %}
+            ]
+        },
+        {
+            key:"Power",
+            bar: true,
+            values:[
+                {% for i in power.get('energy.smartmeter.power', {}).get('historical', []) %}
+                    {
+                        value:{{i.value}},
+                        time:new Date("{{i.time}}"),
+                    },
+                {% endfor %}
+            ]
+        }
+    ];
+}
+
 
 function humidity_data(){
     return [
