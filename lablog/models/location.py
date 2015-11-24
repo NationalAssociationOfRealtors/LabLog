@@ -10,7 +10,6 @@ class LocationMeta(orm.EmbeddedDocument):
     tlc = orm.Field()
 
 class LocationInterface(orm.EmbeddedDocument):
-
     interface = field.DynamicDocument()
 
 class Location(orm.Document):

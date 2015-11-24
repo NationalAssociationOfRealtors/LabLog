@@ -25,6 +25,8 @@ OAUTH2_PROVIDER_TOKEN_EXPIRES_IN = 864000
 ES_INDEX = "lablog"
 ES_HOSTS = [{"host":"es", "port":9200},]
 
+HUE_URL = "https://www.meethue.com/api/sendmessage"
+
 AUTH_SUBDOMAIN = "auth"
 
 SECRET_KEY = os.getenv("SECRET_KEY")
