@@ -1,9 +1,10 @@
 from lablog.interfaces import Interface
+from lablog import messages
 import humongolus.field as field
 
 class PhilipsHue(Interface):
-    exchange = None
-    measurement_key = None
+    exchange = messages.Exchanges.node
+    measurement_key = 'actuator.light'
 
     bridge_id = field.Char()
     access_token = field.Char()
