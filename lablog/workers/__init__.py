@@ -47,12 +47,15 @@ app.steps['consumer'].add(TriggerConsumer)
 @app.task
 def run_interfaces():
     for loc in Location.find():
-        logging.info("Monitoring Location: {}".format(loc.name))
-        for i in loc.interfaces:
-            logging.info("Running Interface: {}".format(i.interface.__class__.__name__))
-            try:
-                i.interface.run(INFLUX, MQ)
-            except Exception as e:
-                logging.error(e)
-            logging.info("Finished Interface: {}".format(i.interface.__class__.__name__))
+        try:
+            logging.info("Monitoring Location: {}".format(loc.name))
+            for i in loc.interfaces:
+                logging.info("Running Interface: {}".format(i.interface.__class__.__name__))
+                try:
+                    i.interface.run(INFLUX, MQ)
+                except Exception as e:
+                    logging.error(e)
+                logging.info("Finished Interface: {}".format(i.interface.__class__.__name__))
+        except Exception as e:
+            logging.error(e)
     MQ.release()

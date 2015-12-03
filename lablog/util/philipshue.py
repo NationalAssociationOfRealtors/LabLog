@@ -26,5 +26,6 @@ class Hue(object):
             params={'token':self.auth_token},
             headers = {'content-type':'application/x-www-form-urlencoded'},
             data='clipmessage={}'.format(json.dumps(msg)),
+            timeout=5,
         )
         return res.text
