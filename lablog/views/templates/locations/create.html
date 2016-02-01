@@ -10,11 +10,20 @@
 <div class='form-group'>
     <input type="hidden" name="location._id" value="{% if location._id %}{{location._id}}{% endif %}" />
 {% for k,field in location._fields.iteritems() %}
-    {% if k != 'geo' and k != 'interfaces' %}
+    {% if k != 'geo' and k != 'interfaces' and k != 'floorplan' %}
     <label for='location.{{k}}'>{{field._name}}</label>
     <input type="text" class='form-control' name='location.{{k}}' value="{% if location._get(k)._value %}{{location._get(k)._value}}{% endif %}"/>
     {% endif %}
 {% endfor %}
+</div>
+<h2>Floorplans</h2>
+<div class='form-group'>
+    <label for='location.floorplan.level1'>Level 1</label>
+    <input type="text" class='form-control' name='location.floorplan.level1' value="{% if location.floorplan.level1 %}{{location.floorplan.level1}}{% endif %}"/>
+    <label for='location.floorplan.level2'>Level 2</label>
+    <input type="text" class='form-control' name='location.floorplan.level2' value="{% if location.floorplan.level2 %}{{location.floorplan.level2}}{% endif %}"/>
+    <label for='location.floorplan.level3'>Level 3</label>
+    <input type="text" class='form-control' name='location.floorplan.level3' value="{% if location.floorplan.level3 %}{{location.floorplan.level3}}{% endif %}"/>
 </div>
 <h2>Interfaces</h2>
 {% for ki,interface in interfaces.iteritems() %}

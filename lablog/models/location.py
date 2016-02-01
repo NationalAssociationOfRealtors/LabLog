@@ -12,6 +12,11 @@ class LocationMeta(orm.EmbeddedDocument):
 class LocationInterface(orm.EmbeddedDocument):
     interface = field.DynamicDocument()
 
+class Floorplan(orm.EmbeddedDocument):
+    level1 = field.Char()
+    level2 = field.Char()
+    level3 = field.Char()
+
 class Location(orm.Document):
     _db = 'lablog'
     _collection = 'locations'
@@ -23,6 +28,7 @@ class Location(orm.Document):
     interfaces = orm.List(type=LocationInterface)
     zipcode = field.Char()
     meta = LocationMeta()
+    floorplan = Floorplan()
 
     def get_interface_data(self, db, _from="7d"):
         vals = {}
@@ -75,3 +81,14 @@ class Location(orm.Document):
                 self.meta.tlc = ret
 
         return self.meta.tlc['vibes']
+
+
+class Beacon(orm.Document):
+    _db = 'lablog'
+    _collection = 'floorplan_beacons'
+    
+    id = field.Char()
+    x = field.Integer()
+    y = field.Integer()
+    level = field.Integer()
+    location = field.DocumentId(type=Location)
