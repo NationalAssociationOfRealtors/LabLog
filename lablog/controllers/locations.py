@@ -1,6 +1,7 @@
-from flask import Blueprint, Response, render_template, jsonify, url_for, request, flash, redirect, g
+from flask import Blueprint, Response, render_template, url_for, request, flash, redirect, g
 from flask.views import MethodView
-from lablog.models.location import Location, LocationInterface
+from lablog.util.jsontools import jsonify
+from lablog.models.location import Location, LocationInterface, Beacon
 from lablog.interfaces.eagle import EnergyGateway
 from lablog.interfaces.neurio import HomeEnergyMonitor
 from lablog.interfaces.netatmo import NetAtmo
@@ -49,9 +50,11 @@ class LocationController(MethodView):
     def post(self):
         vals = {}
         for k,v in request.form.iteritems():
+            base = vals
             keys = k.split(".")
-            vals.setdefault(keys[0], {})
-            vals[keys[0]][keys[1]] = v
+            for i in range(len(keys)-1):
+                base = base.setdefault(keys[i], {})
+            base[keys[len(keys)-1]] = v
 
         loc_data = vals.pop("location")
         id = loc_data.pop("_id")
@@ -107,7 +110,37 @@ class LocationWidget(MethodView):
 
         return render_template("locations/widgets/{}.html".format(interface), data=aq, power=power, interface=interface, cost=cost)
 
+class LocationFloorPlan(MethodView):
+
+    def get(self, location):
+        location = Location(id=location)
+        return render_template("locations/floorplan.html", location=location)
+
+    def post(self, location):
+        location = Location(id=location)
+        logging.info("Level: {} | X:{}, Y:{} | Beacon: {}".format(request.form.get('level'), request.form.get('x'), request.form.get('y'), request.form.get('beacon_id')))
+        b = Beacon.find_one({'id':request.form.get('beacon_id')})
+        if not b: b = Beacon()
+        b.x = request.form.get('x')
+        b.y = request.form.get('y')
+        b.id = request.form.get('beacon_id')
+        b.level = request.form.get('level')
+        b.location = location
+        b.save()
+        return jsonify({'success':True, 'id':str(b._id)})
+
+class LocationFloorplanBeacons(MethodView):
+
+    def get(self, location, level):
+        loc = Location(id=location)
+        beacons = Beacon.find({'location':loc._id, 'level':int(level)})
+        logging.info(beacons)
+        return jsonify({'beacons':[b.json() for b in beacons]})
+
+
 locations.add_url_rule("/location", view_func=LocationController.as_view('create_location'))
 locations.add_url_rule("/location/<id>", view_func=LocationController.as_view('location'))
 locations.add_url_rule("/location/<location>/property", view_func=LocationProperty.as_view('location_property'))
 locations.add_url_rule("/location/<location>/interface/<interface>", view_func=LocationWidget.as_view('location_widget'))
+locations.add_url_rule("/location/<location>/floorplan", view_func=LocationFloorPlan.as_view('location_floorplan'))
+locations.add_url_rule("/location/<location>/floorplan/<level>/beacons", view_func=LocationFloorplanBeacons.as_view('location_floorplan_beacons'))

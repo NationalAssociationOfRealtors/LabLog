@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}{{location.name}} floorplans{% endblock %}
+{% block head %}
+    <!-- Magnifik -->
+    <script src="/static/js/vendor/magnifik.js"></script>
+    <style>
+        .beacon{
+            width: 20px;
+            height: 20px;
+            background-color: #FF0000;
+            border-radius: 50%;
+        }
+    </style>
+{% endblock %}
+{% block menu %}{% endblock %}
+{% block content %}
+    <div class="magnifik-example basic">
+        <h3>{{location.name}} floorplans</h3>
+        <div class="col-sm-6 col-md-4">
+            <a class="z1 thumbnail" data-level="1" href="{{location.floorplan.level1}}">
+                <img src="{{location.floorplan.level1}}">
+                <div class="caption">
+                    <h3>Level 1</h3>
+                </div>
+            </a>
+            <a class="z1 thumbnail" data-level="2" href="{{location.floorplan.level2}}">
+                <img src="{{location.floorplan.level2}}">
+                <div class="caption">
+                    <h3>Level 2</h3>
+                </div>
+            </a>
+            <a class="z1 thumbnail" data-level="3" href="{{location.floorplan.level3}}">
+                <img src="{{location.floorplan.level3}}">
+                <div class="caption">
+                    <h3>Level 3</h3>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    (function($) {
+        // initialize magnifik
+        var location_id = "{{location._id}}";
+        var counter = 0;
+        var level = 0;
+        $('a.z1').magnifik({
+            ratio: 4,
+            clickCloses: false,
+        });
+
+        function load_beacons(){
+            $.get("/location/"+location_id+"/floorplan/"+level+"/beacons", function(res){
+                for(var b in res[0].beacons){
+                    var beacon = res[0].beacons[b];
+                    show_input(beacon.x, beacon.y, beacon.id, false);
+                }
+            })
+        }
+
+        function show_input(x, y, id, input, e){
+            id = id || null;
+            counter++;
+            var content = '<form class="beacon-form" data-id="'+counter+'" id="form'+counter+'"><input type="text" class="beacon_input" placeholder="Beacon ID" name="beacon'+counter+'" value="'+id+'" id="input_beacon_'+counter+'"/><button type="submit" class="btn btn-primary btn-xs">Submit</button></form>';
+            $('.m-magnifikCanvas').append("<div id='beacon"+counter+"' data-value='"+id+"' data-counter='"+counter+"' class='beacon' data-toggle='popover' data-html='true' data-content='"+content+"' style='position: absolute; left:"+x+"px; top:"+y+"px;'>&nbsp;</div>");
+            $('#beacon'+counter).on('shown.bs.popover', function(){
+                var c = $(this).data('counter');
+                $("#input_beacon_"+c).val($("#beacon"+c).data("value"));
+                $("#input_beacon_"+c).focus();
+                $("#form"+c).submit(function(e){
+                    var id = $(this).data("id");
+                    $("#beacon"+id).popover('hide');
+                    var val = $("#input_beacon_"+id).val();
+                    $("#beacon"+id).data("value", val);
+                    var p = $("#beacon"+id).offset()
+                    $.post("/location/"+location_id+"/floorplan", {x:x, y:y, beacon_id:val, level:level}, function(e){
+                        $("#beacon"+id).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+                    })
+                    return false;
+                });
+            });
+            $("#beacon"+counter).popover();
+            if(input){
+                $("#beacon"+counter).popover('show');
+                $("#input_beacon_"+counter).focus();
+            }
+        }
+
+        var $element = $('a.z1');
+        var openingEvent = 'magnifik:opening';
+        var openedEvent = 'magnifik:open';
+        var closedEvent = 'magnifik:close';
+        var closingEvent = 'magnifik:closing';
+
+        $element.on(openingEvent, function(event) {
+            console.log(openingEvent + ' event has been fired');
+        });
+
+        $element.on(openedEvent, function(event) {
+            console.log(openedEvent + ' event has been fired');
+            level = $(this).data("level");
+            $(".m-magnifikFull").click(function(e){
+                var x = (e.offsetX-10);
+                var y = (e.offsetY-10);
+                show_input(x, y, null, true);
+            });
+            load_beacons();
+        });
+
+        $element.on(closingEvent, function(event) {
+            console.log(closingEvent + ' event has been fired');
+            return false;
+        });
+
+        $element.on(closedEvent, function(event) {
+            console.log(closedEvent + ' event has been fired');
+        });
+
+    }(jQuery));
+    </script>
+{% endblock %}
