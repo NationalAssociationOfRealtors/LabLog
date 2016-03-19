@@ -10,7 +10,7 @@ mongodb:
     command: "--dbpath=/mongo/data"
     log_driver: "syslog"
     expose:
-        - "27017:27017"
+        - "27017"
     volumes_from:
         - mongodata
 
@@ -25,8 +25,8 @@ elasticsearch:
     hostname: elasticsearch
     log_driver: "syslog"
     expose:
-        - "9200:9200"
-        - "9300:9300"
+        - "9200"
+        - "9300"
     volumes_from:
         - elasticdata
 
@@ -57,7 +57,7 @@ influxdb:
     volumes_from:
         - influxdata
     environment:
-        INFLUXDB_VERSION: 0.9.4.1
+        INFLUXDB_VERSION: 0.9.6.1
 
 rabbitdata:
     image: rabbitmq:3-management
@@ -71,7 +71,7 @@ rabbitmq:
     hostname: rabbitmq
     log_driver: "syslog"
     expose:
-        - "5672:5672"
+        - "5672"
     ports:
         - "15672:15672"
         - "5672:5672"
