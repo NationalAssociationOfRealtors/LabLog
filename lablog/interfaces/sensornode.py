@@ -21,10 +21,11 @@ class Node(Interface):
     def data(self, data=None):
         j = aes.decrypt(data, KEY)
         j = json.loads(j)
+        logging.info(j)
         return j
 
     def parse_data(self, data):
-        v_map = {'t':'temperature','h':'humidity','l':'light','c':'co2','v':'voc','d':'dust'}
+        v_map = {'t':'temperature','h':'humidity','l':'light','c':'co2','v':'voc','d':'dust','f':'fuel'}
         points = []
         for k,v in data.iteritems():
             k = v_map.get(k, k)
