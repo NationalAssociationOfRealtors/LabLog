@@ -25,7 +25,7 @@ class Node(Interface):
         return j
 
     def parse_data(self, data):
-        v_map = {'t':'temperature','h':'humidity','l':'light','c':'co2','v':'voc','d':'dust','f':'fuel'}
+        v_map = {'t':'temperature','h':'humidity','l':'light','c':'co2','v':'voc','d':'dust','f':'fuel', 'n':'decibel'}
         points = []
         for k,v in data.iteritems():
             k = v_map.get(k, k)
