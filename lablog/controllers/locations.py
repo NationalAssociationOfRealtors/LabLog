@@ -64,6 +64,7 @@ class LocationController(MethodView):
         else:
             loc = Location(data=loc_data)
         for k,v in vals.iteritems():
+            if not v.get('_enabled'): v['_enabled'] = False
             for i in loc.interfaces:
                 inter = i.interface
                 if inter.__class__.__name__ == k:

@@ -16,6 +16,7 @@ class Interface(orm.Document):
     run_delta = None#datetime.timedelta(minutes=5)
 
     _last_run = field.Date()
+    _enabled = field.Boolean(default=True)
 
     def run(self, db, mq, data=None):
         now  = datetime.datetime.utcnow()

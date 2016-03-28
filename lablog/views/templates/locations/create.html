@@ -33,6 +33,8 @@
         <label for='location.{{k}}'>{{field._name}}</label>
         {% if k == '_last_run' %}
             <p>{{interface._get(k)._value}}</p>
+        {% elif k == '_enabled' %}
+            <input type="checkbox" class='form-control' name='{{ki}}.{{k}}' value="{% if interface._get(k)._value %}1{% else %}0{% endif %}" {% if interface._get(k)._value %}checked{% endif %}/>
         {% else %}
             <input type="text" class='form-control' name='{{ki}}.{{k}}' value="{% if interface._get(k)._value %}{{interface._get(k)._value}}{% endif %}"/>
         {% endif %}

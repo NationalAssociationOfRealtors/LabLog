@@ -52,10 +52,13 @@ class Location(orm.Document):
     @property
     def mls(self):
         if not self.meta.mls or self.property_id != self.meta.mls.get('ListingId'):
-            od = OData(config.MLS_ODATA_URL, config.MLS_ODATA_UN, config.MLS_ODATA_PASSWORD)
-            res = od.entity("Property").id(self.property_id)#filter("PostalCode eq '60626'").orderby("ListingContractDate desc").top("1").get()
-            self.meta.mls = res
-            self.save()
+            try:
+                od = OData(config.MLS_ODATA_URL, config.MLS_ODATA_UN, config.MLS_ODATA_PASSWORD)
+                res = od.entity("Property").id(self.property_id)#filter("PostalCode eq '60626'").orderby("ListingContractDate desc").top("1").get()
+                self.meta.mls = res
+                self.save()
+            except:
+                self.meta.mls = {}
 
         return self.meta.mls
 
@@ -86,7 +89,7 @@ class Location(orm.Document):
 class Beacon(orm.Document):
     _db = 'lablog'
     _collection = 'floorplan_beacons'
-    
+
     id = field.Char()
     x = field.Integer()
     y = field.Integer()

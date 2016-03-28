@@ -15,7 +15,6 @@
                     <a href="{{url_for('locations.location_property', location=loc._id)}}">
                         <img src="http://www.mredllc.com/photos/property/{{loc.property_id[-3:]}}/{{loc.property_id}}.jpg" alt="">
                         <div class="caption">
-                            <h4 class="pull-right">{{"${:,.2f}".format(loc.mls.ListPrice)}}</h4>
                             <h4>{{loc.mls.StreetNumber}} {{loc.mls.StreetName}}</h4>
                             <p>{{loc.mls.PublicRemarks}}</p>
                         </div>
