@@ -19,7 +19,7 @@ class Node(Interface):
     id = field.Char()
 
     def data(self, data=None):
-        j = aes.decrypt(data, KEY)
+        j = aes.decrypt(data.ljust(160), KEY)
         j = json.loads(j)
         logging.info(j)
         return j
