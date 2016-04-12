@@ -1,83 +1,3 @@
-mongodata:
-    image: mongo:2.6
-    command: "true"
-    volumes:
-        - /nar/mongo:/mongo/data
-
-mongodb:
-    image: mongo:2.6
-    hostname: mongodb
-    command: "--dbpath=/mongo/data"
-    log_driver: "syslog"
-    expose:
-        - "27017"
-    volumes_from:
-        - mongodata
-
-elasticdata:
-    image: elasticsearch:1.5
-    command: "true"
-    volumes:
-        - /nar/elasticsearch:/usr/share/elasticsearch/data
-
-elasticsearch:
-    image: elasticsearch:1.5
-    hostname: elasticsearch
-    log_driver: "syslog"
-    expose:
-        - "9200"
-        - "9300"
-    volumes_from:
-        - elasticdata
-
-grafana:
-    image: grafana/grafana
-    hostname: grafana
-    log_driver: "syslog"
-    expose:
-        - "3000:3000"
-    links:
-        - influxdb:influx
-    environment:
-        GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
-
-influxdata:
-    image: tutum/influxdb
-    command: "true"
-    volumes:
-        - /nar/influx:/data
-
-influxdb:
-    image: tutum/influxdb
-    hostname: influxdb
-    log_driver: "syslog"
-    ports:
-        - "8086:8086"
-        - "8083:8083"
-    volumes_from:
-        - influxdata
-    environment:
-        INFLUXDB_VERSION: 0.9.6.1
-
-rabbitdata:
-    image: rabbitmq:3-management
-    command: "true"
-    volumes:
-        - /data/log
-        - /data/mnesia
-
-rabbitmq:
-    image: rabbitmq:3-management
-    hostname: rabbitmq
-    log_driver: "syslog"
-    expose:
-        - "5672"
-    ports:
-        - "15672:15672"
-        - "5672:5672"
-    volumes_from:
-        - rabbitdata
-
 basepython:
     build: .
     command: "true"
@@ -85,7 +5,8 @@ basepython:
         - .:/app
         - ./config:/config
     dns:
-        - 172.16.24.105
+        - 172.16.24.190
+        - 172.17.24.190
         - 10.6.10.208
         - 8.8.8.8
         - 8.8.4.4
@@ -100,22 +21,22 @@ api:
     log_driver: "syslog"
     expose:
         - "8000:8000"
-    links:
-        - mongodb:mongo
-        - elasticsearch:es
-        - influxdb:influx
-        - rabbitmq:mq
+    external_links:
+        - rosettahomeservices_mongodb_1:mongo
+        - rosettahomeservices_elasticsearch_1:es
+        - rosettahomeservices_influxdb_1:influx
+        - rosettahomeservices_rabbitmq_1:mq
 
 workers:
     extends:
         service: basepython
     command: celery -A lablog.workers worker --loglevel=info --autoreload
     log_driver: "syslog"
-    links:
-        - mongodb:mongo
-        - elasticsearch:es
-        - influxdb:influx
-        - rabbitmq:mq
+    external_links:
+        - rosettahomeservices_mongodb_1:mongo
+        - rosettahomeservices_elasticsearch_1:es
+        - rosettahomeservices_influxdb_1:influx
+        - rosettahomeservices_rabbitmq_1:mq
     environment:
         C_FORCE_ROOT: 1
 
@@ -124,13 +45,24 @@ scheduler:
         service: basepython
     command: celery -A lablog.workers beat --loglevel=info
     log_driver: "syslog"
-    links:
-        - mongodb:mongo
-        - elasticsearch:es
-        - influxdb:influx
-        - rabbitmq:mq
+    external_links:
+        - rosettahomeservices_mongodb_1:mongo
+        - rosettahomeservices_elasticsearch_1:es
+        - rosettahomeservices_influxdb_1:influx
+        - rosettahomeservices_rabbitmq_1:mq
     environment:
         C_FORCE_ROOT: 1
+
+grafana:
+    image: grafana/grafana
+    hostname: grafana
+    log_driver: "syslog"
+    expose:
+        - "3000:3000"
+    external_links:
+        - rosettahomeservices_influxdb_1:influx
+    environment:
+        GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
 
 nginx:
     image: nginx:1.7
