@@ -1,0 +1,79 @@
+basepython:
+    build: .
+    command: "true"
+    volumes:
+        - .:/app
+        - ./config:/config
+    dns:
+        - 172.16.24.190
+        - 172.17.24.190
+        - 10.6.10.208
+        - 8.8.8.8
+        - 8.8.4.4
+    env_file:
+        - .env
+
+api:
+    extends:
+        service: basepython
+    hostname: api
+    command: ./startup.sh
+#    log_driver: "syslog"
+    expose:
+        - "8000"
+    external_links:
+        - rosettahomeservices_mongodb_1:mongo
+        - rosettahomeservices_elasticsearch_1:es
+        - rosettahomeservices_influxdb_1:influx
+        - rosettahomeservices_rabbitmq_1:mq
+
+workers:
+    extends:
+        service: basepython
+    command: celery -A lablog.workers worker --loglevel=info --autoreload
+#    log_driver: "syslog"
+    external_links:
+        - rosettahomeservices_mongodb_1:mongo
+        - rosettahomeservices_elasticsearch_1:es
+        - rosettahomeservices_influxdb_1:influx
+        - rosettahomeservices_rabbitmq_1:mq
+    environment:
+        C_FORCE_ROOT: 1
+
+scheduler:
+    extends:
+        service: basepython
+    command: celery -A lablog.workers beat --loglevel=info
+#    log_driver: "syslog"
+    external_links:
+        - rosettahomeservices_mongodb_1:mongo
+        - rosettahomeservices_elasticsearch_1:es
+        - rosettahomeservices_influxdb_1:influx
+        - rosettahomeservices_rabbitmq_1:mq
+    environment:
+        C_FORCE_ROOT: 1
+
+grafana:
+    image: grafana/grafana
+    hostname: grafana
+#    log_driver: "syslog"
+    expose:
+        - "3000"
+    external_links:
+        - rosettahomeservices_influxdb_1:influx
+    environment:
+        GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
+
+nginx:
+    image: nginx:1.7
+#    log_driver: "syslog"
+    links:
+        - api:backend
+        - grafana:graf
+    volumes:
+        - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
+        - ./config/nginx:/etc/nginx/ssl
+        - .:/app
+    ports:
+        - "80:80"
+        - "443:443"
