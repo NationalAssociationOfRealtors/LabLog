@@ -11,32 +11,8 @@ This is the application that provides the backend services for CRTLabs infrastru
 * REST API for application data
 * Docker based deployment [Docker](https://docs.docker.com/) 
 
-
-## Installation
-### Linux
-install [Docker](https://docs.docker.com/)
-
-install docker-compose, not in a virtualenv, it needs sudo to talk to Docker (If you know how to give sudo access to a module installed in virtualenv, I would love to hear it)
-
-    sudo pip install docker-compose
-
-in order to startup NGINX you'll need to put your certs in config/nginx directory
-
-you'll also want to copy the default.env file to .env and fill in the variables with your information.
-
-LDAP based registration/authentication can be disabled in loglab/config.py
-
-from within the base directory of LabLog run
-
-    sudo docker-compose up
-
-grab some coffee... it's going to download a few hundred MB of image files, but everything should be working when you get back...
-
-assuming everything ran ok, you should be able to see some log files in syslog. Have fun!
-
-### Mac OS
 ### Prerequisites:
-* [Docker Toolbox & Kitematic for MAC](https://docs.docker.com/engine/]installation/mac/)
+* [Docker Toolbox] (https://www.docker.com/products/overview#/docker_toolbox)
 * [Rosetta Home Back End Services](https://github.com/NationalAssociationOfRealtors/RosettaHomeServices)
 
 
