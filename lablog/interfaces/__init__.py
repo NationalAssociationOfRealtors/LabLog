@@ -62,7 +62,10 @@ class Interface(orm.Document):
     def get_long_history(self, db, _from):
         historical = "SELECT MEAN(value) as value FROM \"lablog\".\"1hour\"./{}.*/ WHERE time > now() - {} AND interface='{}' GROUP BY time(1d) fill(0)".format(self.measurement_key, _from, self._id)
         logging.info(historical)
-        res = db.query(historical)
+        try:
+            res = db.query(historical)
+        except Exception as e:
+            res = {}
         ret = {}
         for t,g in res.items():
             ret.setdefault(t[0], {})
