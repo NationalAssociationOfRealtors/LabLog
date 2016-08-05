@@ -87,7 +87,10 @@ class Interface(orm.Document):
         triggers = TriggerInstance.find({'enabled':True, 'interface':str(self._id)})
 
         sql = "{};{};{};{}".format(historical, previous, current, aggregate)
-        res = db.query(sql)
+        try:
+            res = db.query(sql)
+        except Exception as e:
+            res = [{}, {}, {}, {}]
         ret = {}
         for t,g in res[0].items():
             ret.setdefault(t[0], {})
